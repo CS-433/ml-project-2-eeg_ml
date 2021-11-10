@@ -1,6 +1,7 @@
+import os
+import sys
 import random
 import math
-from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim
@@ -14,10 +15,10 @@ class classifier_LSTM(nn.Module):
     def __init__(self, input_size, lstm_layers, lstm_size, output_size, GPUindex):
         super(classifier_LSTM,self).__init__()
         self.input_size = input_size
-	self.lstm_layers = lstm_layers
+	    self.lstm_layers = lstm_layers
         self.lstm_size = lstm_size
         self.output_size = output_size
-	self.GPUindex = GPUindex
+	    self.GPUindex = GPUindex
 
         self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
         self.output = nn.Linear(lstm_size, output_size)
@@ -80,17 +81,17 @@ class classifier_CNN(nn.Module):
         self.conv1 = nn.Conv1d(in_channels=1, out_channels=self.conv1_out_channels, kernel_size=self.conv1_size, stride=self.conv1_stride)
         self.fc1 = nn.Linear(self.fc1_in, self.fc1_out)
         self.pool1 = nn.AvgPool1d(kernel_size=self.pool1_size, stride=self.pool1_stride)
-        self.activation = nn.ELU()
+        self.activation = nn.ReLU()
         self.dropout = nn.Dropout(p=self.dropout_p)
         self.fc2 = nn.Linear(self.fc2_in, n_class)
 
     def forward(self, x):
-	#print x.shape
+	    #print x.shape
         batch_size = x.data.shape[0]
         x = x.permute(0,2,1)
         x = torch.unsqueeze(x,2)
         x = x.contiguous().view(-1,1,x.data.shape[-1])
-	#print x.shape
+	    #print x.shape
         x = self.conv1(x)
         x = self.activation(x)
 
@@ -108,10 +109,11 @@ class classifier_CNN(nn.Module):
         x = self.fc2(x)
         return x
 
+
 ##############################################################
 # Network trainer
 ##############################################################
-def net_trainer(net, loaders, opt, channel_idx):
+def net_trainer(net, loaders, opt, channel_idx, save_path):
     optimizer = getattr(torch.optim, opt.optim)(net.parameters(), lr = opt.learning_rate)
     # Setup CUDA
     if not opt.no_cuda:
@@ -141,24 +143,21 @@ def net_trainer(net, loaders, opt, channel_idx):
                 # Check CUDA
                 if not opt.no_cuda:
                     if type(channel_idx) != type(None):
-                        input = input[:,:,channel_idx].cuda(opt.GPUindex,async = True)
-                        target = target.cuda(opt.GPUindex,async = True)
+                        input = input[:,:,channel_idx].cuda(opt.GPUindex)
+                        target = target.cuda(opt.GPUindex)
                     else:
-                        input = input.cuda(opt.GPUindex,async = True)
-                        target = target.cuda(opt.GPUindex,async = True)
-		#print(input.shape)
-                # Wrap for autograd
-                input = Variable(input, volatile = (split != "train"))
-                target = Variable(target, volatile = (split != "train"))
+                        input = input.cuda(opt.GPUindex)
+                        target = target.cuda(opt.GPUindex)
+            
                 # Forward
                 output = net(input)
                 loss = F.cross_entropy(output, target)
-                losses[split] += loss.data[0]
+                losses[split] += loss.item()
                 # Compute accuracy
-                _,pred = output.data.max(1)
-                correct = pred.eq(target.data).sum().float()
-                accuracy = correct/input.data.size(0)
-                accuracies[split] += accuracy
+                _, pred = output.max(1) # (max, max_indices)
+                correct = pred.eq(target).float().sum()
+                accuracy = correct/input.size(0)
+                accuracies[split] += accuracy.item()
                 counts[split] += 1
                 # Backward and optimize
                 if split == "train":
@@ -173,4 +172,6 @@ def net_trainer(net, loaders, opt, channel_idx):
                                                                                                          accuracies["val"]/counts["val"],
                                                                                                          losses["test"]/counts["test"],
                                                                                                          accuracies["test"]/counts["test"]))
-    return (accuracies["val"]/counts["val"]).data.cpu().item(), (accuracies["test"]/counts["test"]).data.cpu().item()
+        
+        torch.save(net.state_dict(), save_path)
+    return accuracies["val"]/counts["val"], accuracies["test"]/counts["test"]
