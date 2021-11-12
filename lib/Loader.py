@@ -1,11 +1,12 @@
 import torch
 
 class EEGDataset:
-    def __init__(self, eeg_signals_path, use_window=False, window_len=100, window_s=0):
+    def __init__(self, eeg_signals_path, label_tag="SEX", use_window=False, window_len=100, window_s=0):
         # Load EEG signals
         loaded = torch.load(eeg_signals_path)
         self.data = loaded["dataset"]
-        self.labels = loaded["labels"]
+        self.label_tag = label_tag
+        self.labels = loaded[self.label_tag]
 
         # mean/std computed from training set
         # different for different split
