@@ -12,24 +12,20 @@ import numpy as np
 ##############################################################
 class classifier_LSTM(nn.Module):
 
-    def __init__(self, input_size, lstm_layers, lstm_size, output_size, GPUindex):
+    def __init__(self, input_size, lstm_layers, lstm_size, output_size):
         super(classifier_LSTM,self).__init__()
         self.input_size = input_size
 	    self.lstm_layers = lstm_layers
         self.lstm_size = lstm_size
         self.output_size = output_size
-	    self.GPUindex = GPUindex
-
         self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
-        self.output = nn.Linear(lstm_size, output_size)
+        self.lin = nn.Linear(lstm_size, output_size)
 
     def forward(self, x):
+        # x - (B, L, D)
         batch_size = x.size(0)
-        lstm_init = (torch.zeros(self.lstm_layers, batch_size, self.lstm_size), torch.zeros(self.lstm_layers, batch_size, self.lstm_size))
-        if x.is_cuda: lstm_init = (lstm_init[0].cuda(self.GPUindex), lstm_init[0].cuda(self.GPUindex))
-        lstm_init = (Variable(lstm_init[0], volatile=x.volatile), Variable(lstm_init[1], volatile=x.volatile))
-        x = self.lstm(x, lstm_init)[0][:,-1,:]
-        x = self.output(x)
+        x = self.lstm(x)[0][:,-1,:]
+        x = self.lin(x)
         return x
 
 
@@ -42,21 +38,91 @@ class classifier_MLP(nn.Module):
         super(classifier_MLP,self).__init__()
         self.input_size = input_size
 
-        self.act = nn.Sigmoid()
+        self.act = nn.ReLU()
         self.output1 = nn.Linear(input_size, 128)
         self.output2 = nn.Linear(128, n_class)
 
     def forward(self, x):
         batch_size = x.size(0)
-        x = x.view(batch_size,-1)
+        x = x.reshape(batch_size,-1)
         x = self.output1(x)
         x = self.act(x)
         x = self.output2(x)
+
         return x
 
 ##############################################################
 # CNN classifier
 ##############################################################
+class CNN_feature(nn.Module):
+
+    def __init__(self, in_channel, num_points):
+        super(CNN_feature, self).__init__()
+        self.channel = in_channel
+        self.num_points = num_points
+
+        self.conv1_size = 32
+        self.conv1_stride = 1
+        self.conv1_out_channels = 8
+        self.conv1_out = int(math.floor(((num_points-self.conv1_size)/self.conv1_stride+1)))
+        self.fc1_in = self.channel*self.conv1_out_channels
+        self.fc1_out = 40 
+
+        self.pool1_size = 128
+        self.pool1_stride = 64
+        self.pool1_out = int(math.floor(((self.conv1_out-self.pool1_size)/self.pool1_stride+1)))
+
+        self.dropout_p = 0.5
+        
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=self.conv1_out_channels, kernel_size=self.conv1_size, stride=self.conv1_stride)
+        self.fc1 = nn.Linear(self.fc1_in, self.fc1_out)
+        self.pool1 = nn.AvgPool1d(kernel_size=self.pool1_size, stride=self.pool1_stride)
+        self.activation = nn.ReLU()
+        self.dropout = nn.Dropout(p=self.dropout_p)
+
+    def forward(self, x):
+	    #x - (B, L, D)
+        batch_size = x.shape[0]
+        len_eeg = x.shape[1]
+        #num_channel = x.shape[2]
+
+        x = x.permute(0,2,1)
+        x = x.reshape(-1, len_eeg)
+        x = x.unsqueeze(1) # (B*D, 1, L)
+
+	    #print x.shape
+        x = self.conv1(x) # (B*D, 8, L)
+        x = self.activation(x)
+
+        x = x.reshape(batch_size, self.channel, self.conv1_out_channels, self.conv1_out)
+        x = x.permute(0,3,1,2)
+        x = x.reshape(batch_size, self.conv1_out, self.channel*self.conv1_out_channels)
+        x = self.dropout(x)
+
+        x = self.fc1(x) # (B, L', 40)
+        x = self.activation(x) 
+        #x = self.dropout(x)   
+        x = x.permute(0,2,1) # (B, 40, L')
+        x = self.pool1(x) 
+
+        x = x.reshape(batch_size, -1) 
+        return x
+
+class classifier_CNN(nn.Module):
+
+    def __init__(self, in_channel, num_points, n_class):
+        super(classifier_CNN, self).__init__()
+
+        self.features = CNN_feature(in_channel, num_points)
+        self.classifier = nn.Linear(self.fc2_in, n_class)
+
+    def forward(self, x):
+	    #x - (B, L, D)
+        x = self.features(x)
+        x = self.classifier(x)
+        return x
+
+'''
 class classifier_CNN(nn.Module):
 
     def __init__(self, in_channel, num_points, n_class):
@@ -86,29 +152,34 @@ class classifier_CNN(nn.Module):
         self.fc2 = nn.Linear(self.fc2_in, n_class)
 
     def forward(self, x):
-	    #print x.shape
-        batch_size = x.data.shape[0]
+	    #x - (B, L, D)
+        batch_size = x.shape[0]
+        len_eeg = x.shape[1]
+        #num_channel = x.shape[2]
+
         x = x.permute(0,2,1)
-        x = torch.unsqueeze(x,2)
-        x = x.contiguous().view(-1,1,x.data.shape[-1])
+        x = x.reshape(-1, len_eeg)
+        x = x.unsqueeze(1) # (B*D, 1, L)
+
 	    #print x.shape
-        x = self.conv1(x)
+        x = self.conv1(x) # (B*D, 8, L)
         x = self.activation(x)
 
-        x = x.view(batch_size, self.channel, self.conv1_out_channels, self.conv1_out)
+        x = x.reshape(batch_size, self.channel, self.conv1_out_channels, self.conv1_out)
         x = x.permute(0,3,1,2)
-        x = x.contiguous().view(batch_size, self.conv1_out, self.channel*self.conv1_out_channels)
+        x = x.reshape(batch_size, self.conv1_out, self.channel*self.conv1_out_channels)
         x = self.dropout(x)
 
-        x = self.fc1(x)
-        x = self.dropout(x)   
-        x = x.permute(0,2,1)
+        x = self.fc1(x) # (B, L', 40)
+        x = self.activation(x) 
+        #x = self.dropout(x)   
+        x = x.permute(0,2,1) # (B, 40, L')
         x = self.pool1(x) 
 
-        x = x.contiguous().view(batch_size, -1) 
+        x = x.reshape(batch_size, -1) 
         x = self.fc2(x)
         return x
-
+'''
 
 ##############################################################
 # Network trainer
@@ -156,9 +227,9 @@ def net_trainer(net, loaders, opt, channel_idx, save_path):
                 # Compute accuracy
                 _, pred = output.max(1) # (max, max_indices)
                 correct = pred.eq(target).float().sum()
-                accuracy = correct/input.size(0)
-                accuracies[split] += accuracy.item()
-                counts[split] += 1
+                #accuracy = correct/input.size(0)
+                accuracies[split] += correct.item()
+                counts[split] += len(correct)
                 # Backward and optimize
                 if split == "train":
                     optimizer.zero_grad()
