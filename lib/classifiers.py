@@ -19,13 +19,23 @@ class classifier_LSTM(nn.Module):
         self.lstm_size = lstm_size
         self.output_size = output_size
         self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
-        self.lin = nn.Linear(lstm_size, output_size)
+        self.lin1 = nn.Linear(lstm_size, 128)
+        self.lin2 = nn.Linear(128, output_size)
+
+        self.act = nn.ReLU()
+
+        self.num_parameters = self.count_parameters()
+
+    def count_parameters(self, ):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def forward(self, x):
         # x - (B, L, D)
         batch_size = x.size(0)
         x = self.lstm(x)[0][:,-1,:]
-        x = self.lin(x)
+        x = self.lin1(x)
+        x = self.act(x)
+        x = self.lin2(x)
         return x
 
 
@@ -39,15 +49,23 @@ class classifier_MLP(nn.Module):
         self.input_size = input_size
 
         self.act = nn.ReLU()
-        self.output1 = nn.Linear(input_size, 128)
-        self.output2 = nn.Linear(128, n_class)
+        self.lin1 = nn.Linear(input_size, 128)
+        self.lin2 = nn.Linear(128, 128)
+        self.lin3 = nn.Linear(128, n_class)
+
+        self.num_parameters = self.count_parameters()
+
+    def count_parameters(self, ):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def forward(self, x):
         batch_size = x.size(0)
         x = x.reshape(batch_size,-1)
-        x = self.output1(x)
+        x = self.lin1(x)
         x = self.act(x)
-        x = self.output2(x)
+        x = self.lin2(x)
+        x = self.act(x)
+        x = self.lin3(x)
 
         return x
 
@@ -79,6 +97,11 @@ class CNN_feature(nn.Module):
         self.pool1 = nn.AvgPool1d(kernel_size=self.pool1_size, stride=self.pool1_stride)
         self.activation = nn.ReLU()
         self.dropout = nn.Dropout(p=self.dropout_p)
+
+        self.num_parameters = self.count_parameters()
+
+    def count_parameters(self, ):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def forward(self, x):
 	    #x - (B, L, D)
@@ -184,7 +207,7 @@ class classifier_CNN(nn.Module):
 ##############################################################
 # Network trainer
 ##############################################################
-def net_trainer(net, loaders, opt, channel_idx, save_path):
+def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, channel_idx=None):
     optimizer = getattr(torch.optim, opt.optim)(net.parameters(), lr = opt.learning_rate)
     # Setup CUDA
     if not opt.no_cuda:
@@ -197,11 +220,13 @@ def net_trainer(net, loaders, opt, channel_idx, save_path):
         losses = {"train": 0.0, "val": 0.0, "test": 0.0}
         accuracies = {"train": 0.0, "val": 0.0, "test": 0.0}
         counts = {"train": 0.0, "val": 0.0, "test": 0.0}
+        '''
         # Adjust learning rate for SGD
         if opt.optim == "SGD":
             lr = opt.learning_rate * (opt.learning_rate_decay_by ** (epoch // opt.learning_rate_decay_every))
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
+        '''
         # Process each split
         for split in ("train", "val", "test"):
             # Set network mode
@@ -211,19 +236,18 @@ def net_trainer(net, loaders, opt, channel_idx, save_path):
                 net.eval()
             # Process all split batches
             for i, (input, target) in enumerate(loaders[split]):
+                if type(channel_idx) != type(None):
+                    input = input[:,:,channel_idx]
+
                 # Check CUDA
                 if not opt.no_cuda:
-                    if type(channel_idx) != type(None):
-                        input = input[:,:,channel_idx].cuda(opt.GPUindex)
-                        target = target.cuda(opt.GPUindex)
-                    else:
-                        input = input.cuda(opt.GPUindex)
-                        target = target.cuda(opt.GPUindex)
+                    input = input.cuda(opt.GPUindex)
+                    target = target.cuda(opt.GPUindex)
             
                 # Forward
                 output = net(input)
                 loss = F.cross_entropy(output, target)
-                losses[split] += loss.item()
+                losses[split] += loss.item()*len(input)
                 # Compute accuracy
                 _, pred = output.max(1) # (max, max_indices)
                 correct = pred.eq(target).float().sum()
@@ -244,5 +268,6 @@ def net_trainer(net, loaders, opt, channel_idx, save_path):
                                                                                                          losses["test"]/counts["test"],
                                                                                                          accuracies["test"]/counts["test"]))
         
-        torch.save(net.state_dict(), save_path)
+    save_name = os.path.join(save_path, classifier_name + '_split_' + str(split_num))
+    torch.save(net.state_dict(), save_name)
     return accuracies["val"]/counts["val"], accuracies["test"]/counts["test"]
