@@ -1,17 +1,18 @@
 # EEG-classification
-You can find the code in **lib** that analysis the EEG data by different methods, including MLP, LSTM and CNN. Before running the code, you need to download the dataset from [here](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and put it under *./data/training_data*. To run the code, do
+You can find the code here that analysis the EEG data by different methods, including MLP, LSTM and CNN. Before running the code, you need to download the dataset from [here](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and put it under *./data/training_data*. 
+
+To run the code, do
 ```
 python  main.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel) --split_num SPLIT_NUMBER --save_model 
-python main.py -ed PATH/TO/EEG/DATASET -sp PATH/TO/EEG/SPLITS -c CLASSIFIER_NAME 
 ```
 
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, the number of epoch is 50. If you do not want to save the trained model, drop **--save_model**. Otherwise, the trained model will be saved at *./checkpoints*. For more options, check *./lib/options.py*.
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, the number of epoch is 50. If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed at the screen anyway). Otherwise, the trained model will be saved at *./checkpoints*. For more options, check *./lib/options.py*.
 
 
 ## Prerequisites
-- openpyxl
 - Python 3
 - panda
+- openpyxl
 - numpy
 - collection
 - PyTorch (Other versions may also work.)
