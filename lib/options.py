@@ -24,11 +24,14 @@ class Options():
 
         self._parser.add_argument('--no_cuda', default=False, help="disable CUDA", action="store_true")
 
+        #self._parser.add_argument('--window_len', default=50, type=int, help='the length of the window')
         self._parser.add_argument('--window_s', default=0, type=int, help='the starting point of the window')
         self._parser.add_argument('--channel_idx', default=0, type=int, help='the idx of the channel') 
         
         self._parser.add_argument('--save_path', type=str, default='checkpoints', help='the path to save trained models')
         self._parser.add_argument('--save_model', default=False, help="save checkpoints", action="store_true")
+
+        self._parser.add_argument('--load_path', type=str, default="checkpoints", help="path to load trained model")
         
 
         self._initialized = True
