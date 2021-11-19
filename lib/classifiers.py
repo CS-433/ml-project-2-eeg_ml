@@ -129,7 +129,7 @@ class CNN_feature(nn.Module):
 
         x = self.fc1(x) # (B, L', 40)
         x = self.activation(x) 
-        #x = self.dropout(x)   
+        x = self.dropout(x)   
         x = x.permute(0,2,1) # (B, 40, L')
         x = self.pool1(x) 
 
@@ -284,7 +284,7 @@ def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, c
                                                                                                          losses["test"]/counts["test"],
                                                                                                          accuracies["test"]/counts["test"]))
 
-        if best_val < accuracies["val"]/counts["val"]:
+        if best_val <= accuracies["val"]/counts["val"]:
             if save_model:
                 save_name = os.path.join(save_path, classifier_name + '_split_' + str(split_num) + '_best.pth')
                 torch.save(net.state_dict(), save_name)
@@ -295,3 +295,39 @@ def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, c
     #save_name = os.path.join(save_path, classifier_name + '_split_' + str(split_num))
     #torch.save(net.state_dict(), save_name)
     return accuracies["val"]/counts["val"], accuracies["test"]/counts["test"], best_epoch, best_val_test
+
+
+##############################################################
+# Network tester
+##############################################################
+def net_tester(net, loaders, opt, classifier_name='', split_num=0, channel_idx=None):
+    
+    model_load_path = os.path.join(opt.load_path, '%s_split_%d_best.pth'%(classifier_name, split_num))
+    net.load_state_dict(torch.load(model_load_path))
+    # Setup CUDA
+    if not opt.no_cuda:
+        net.cuda(opt.GPUindex)
+
+    # Start testing
+    # Initialize accuracy variables
+    accuracies = 0.0
+    counts = 0.0
+    net.eval()
+    # Process all split batches
+    for i, (input, target) in enumerate(loaders['test']):
+        if type(channel_idx) != type(None):
+            input = input[:,:,[channel_idx]]
+
+        # Check CUDA
+        if not opt.no_cuda:
+            input = input.cuda(opt.GPUindex)
+            target = target.cuda(opt.GPUindex)
+    
+        # Forward
+        output = net(input)
+        # Compute accuracy
+        _, pred = output.max(1) # (max, max_indices)
+        correct = pred.eq(target).float().sum()
+        accuracies += correct.item()
+        counts += len(input)
+    return accuracies/counts

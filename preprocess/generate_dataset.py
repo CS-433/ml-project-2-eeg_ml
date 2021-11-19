@@ -79,3 +79,70 @@ def create_dataset(raw_data_path, num_split, ratio_test, save_path):
     dataset_save_path = os.path.join(save_path, 'EEG_dataset.pth')
     torch.save(dataset, dataset_save_path)
     return
+
+def get_data_idx(label_subject, target_subject):
+    target = set(target_subject)
+    idx = []
+    for i in range(len(label_subject)):
+        if label_subject[i] in target:
+            idx.append(i)
+    
+    return idx
+
+def create_split_by_subject(dataset_path, num_split, ratio_test, save_path, seed=11, debug=True):
+    splits = {'splits':{}}
+    for i in range(num_split):
+        splits['splits'][i] = {'train':[], 'val':[], 'test':[]}
+
+    dataset = torch.load(dataset_path)
+    subject = dataset['subject']
+    subject = list(set(subject))
+    #print(len(subject))
+
+    len_data = len(subject)
+    num_test = int(len_data*ratio_test)
+    _range = [i for i in range(len_data)]
+    random.seed(seed)
+    random.shuffle(_range)
+    test_idx = _range[:num_test]
+    rest_idx = _range[num_test:]
+
+    test_subject = [subject[idx] for idx in test_idx]
+    rest_subject = [subject[idx] for idx in rest_idx]
+    print(test_subject)
+
+    test_idx = get_data_idx(dataset['subject'], test_subject)
+
+    train_sets, val_sets = cross_validation(len(rest_subject), ratio=1.0/num_split)
+    for i in range(num_split):
+        splits['splits'][i]['test'] = test_idx
+
+        train_set, val_set = train_sets[i], val_sets[i]
+        train_subject = [rest_subject[idx] for idx in train_set]
+        val_subject = [rest_subject[idx] for idx in val_set]
+        print(val_subject)
+        train_idx = get_data_idx(dataset['subject'], train_subject)
+        val_idx = get_data_idx(dataset['subject'], val_subject)
+        splits['splits'][i]['train'] = train_idx
+        splits['splits'][i]['val'] = val_idx
+
+        print('train_idx ', len(train_idx), ', val_idx ', len(val_idx), ', test_idx ', len(test_idx))
+
+        if debug:
+            assert len(train_idx) + len(val_idx) + len(test_idx) == len(dataset['subject'])
+            assert len(train_idx) == len(set(train_idx))
+            assert len(val_idx) == len(set(val_idx))
+            assert len(set(train_idx) - set(val_idx)) == len(train_idx)
+
+
+    split_save_path = os.path.join(save_path, 'splits_by_subject.pth')
+    torch.save(splits, split_save_path)
+
+    means, stds = get_mean_std(dataset['dataset'], splits['splits'][0]['train']+splits['splits'][0]['val']+splits['splits'][0]['test'])
+    print(means.shape, stds.shape)
+    dataset['means'] = means
+    dataset["stddevs"] = stds
+
+    dataset_save_path = os.path.join(save_path, 'EEG_dataset_by_subject.pth')
+    torch.save(dataset, dataset_save_path)
+    return

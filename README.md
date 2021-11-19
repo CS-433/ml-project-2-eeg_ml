@@ -1,14 +1,6 @@
 # EEG-classification
 You can find the code here that analysis the EEG data by different methods, including MLP, LSTM and CNN. Before running the code, you need to download the dataset from [here](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and put it under *./data/training_data*. 
 
-To run the code, do
-```
-python  main.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel) --split_num SPLIT_NUMBER --save_model 
-```
-
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, the number of epoch is 50. If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed at the screen anyway). Otherwise, the trained model will be saved at *./checkpoints*. For more options, check *./lib/options.py*.
-
-
 ## Prerequisites
 - Python 3
 - panda
@@ -16,6 +8,22 @@ The default optimizer is Adam optimizer, the learning rate is 0.001, the batch s
 - numpy
 - collection
 - PyTorch (Other versions may also work.)
+
+### Training
+To train the classifier, run
+```
+python  main.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel) --split_num SPLIT_NUMBER --save_model 
+```
+
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, the number of epoch is 50 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at *./checkpoints* automatically and be named in the format as *CNN_split_0_best.pth*. For more information of options, check *./lib/options.py*.
+
+### Testing
+To test the classifier, run
+```
+python  eval.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel) --load_path PATH_TO_CHECKPOINTS 
+```
+
+The script will load the model trained on different folds from *PATH_TO_CHECKPOINTS* to evaluate on the test set. The test accuracy will be shown on the screen.
 
 <!---
 ## Getting Started
