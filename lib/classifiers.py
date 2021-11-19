@@ -15,7 +15,7 @@ class classifier_LSTM(nn.Module):
     def __init__(self, input_size, lstm_layers, lstm_size, output_size):
         super(classifier_LSTM,self).__init__()
         self.input_size = input_size
-	    self.lstm_layers = lstm_layers
+        self.lstm_layers = lstm_layers
         self.lstm_size = lstm_size
         self.output_size = output_size
         self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
@@ -52,6 +52,7 @@ class classifier_MLP(nn.Module):
         self.lin1 = nn.Linear(input_size, 128)
         self.lin2 = nn.Linear(128, 128)
         self.lin3 = nn.Linear(128, n_class)
+        self.dropout = nn.Dropout(p=self.dropout_p)
 
         self.num_parameters = self.count_parameters()
 
@@ -79,15 +80,17 @@ class CNN_feature(nn.Module):
         self.channel = in_channel
         self.num_points = num_points
 
-        self.conv1_size = 32
+        #num_points = 80
+
+        self.conv1_size = 16#32
         self.conv1_stride = 1
         self.conv1_out_channels = 8
         self.conv1_out = int(math.floor(((num_points-self.conv1_size)/self.conv1_stride+1)))
         self.fc1_in = self.channel*self.conv1_out_channels
         self.fc1_out = 40 
 
-        self.pool1_size = 128
-        self.pool1_stride = 64
+        self.pool1_size = 16#128
+        self.pool1_stride = 8#64
         self.pool1_out = int(math.floor(((self.conv1_out-self.pool1_size)/self.pool1_stride+1)))
 
         self.dropout_p = 0.5
@@ -98,16 +101,18 @@ class CNN_feature(nn.Module):
         self.activation = nn.ReLU()
         self.dropout = nn.Dropout(p=self.dropout_p)
 
-        self.num_parameters = self.count_parameters()
+        self.fc2_in = self.pool1_out*self.fc1_out
 
-    def count_parameters(self, ):
-        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+        print(self.conv1_out, self.pool1_out)
+        #sys.exit()
 
     def forward(self, x):
 	    #x - (B, L, D)
         batch_size = x.shape[0]
         len_eeg = x.shape[1]
         #num_channel = x.shape[2]
+        #print(x.shape)
+        #sys.exit()
 
         x = x.permute(0,2,1)
         x = x.reshape(-1, len_eeg)
@@ -137,7 +142,15 @@ class classifier_CNN(nn.Module):
         super(classifier_CNN, self).__init__()
 
         self.features = CNN_feature(in_channel, num_points)
+        self.fc2_in = self.features.fc2_in
         self.classifier = nn.Linear(self.fc2_in, n_class)
+        
+        self.num_parameters = self.count_parameters()
+        print(self.num_parameters)
+        #sys.exit()
+
+    def count_parameters(self, ):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def forward(self, x):
 	    #x - (B, L, D)
@@ -207,13 +220,16 @@ class classifier_CNN(nn.Module):
 ##############################################################
 # Network trainer
 ##############################################################
-def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, channel_idx=None):
+def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, channel_idx=None, save_model=False):
     optimizer = getattr(torch.optim, opt.optim)(net.parameters(), lr = opt.learning_rate)
     # Setup CUDA
     if not opt.no_cuda:
         net.cuda(opt.GPUindex)
         print("Copied to CUDA")
 
+    best_val = 0.0
+    best_epoch = -1
+    best_val_test = 0.0
     # Start training
     for epoch in range(1, opt.epochs+1):
         # Initialize loss/accuracy variables
@@ -237,7 +253,7 @@ def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, c
             # Process all split batches
             for i, (input, target) in enumerate(loaders[split]):
                 if type(channel_idx) != type(None):
-                    input = input[:,:,channel_idx]
+                    input = input[:,:,[channel_idx]]
 
                 # Check CUDA
                 if not opt.no_cuda:
@@ -253,7 +269,7 @@ def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, c
                 correct = pred.eq(target).float().sum()
                 #accuracy = correct/input.size(0)
                 accuracies[split] += correct.item()
-                counts[split] += len(correct)
+                counts[split] += len(input)
                 # Backward and optimize
                 if split == "train":
                     optimizer.zero_grad()
@@ -267,7 +283,15 @@ def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, c
                                                                                                          accuracies["val"]/counts["val"],
                                                                                                          losses["test"]/counts["test"],
                                                                                                          accuracies["test"]/counts["test"]))
+
+        if best_val < accuracies["val"]/counts["val"]:
+            if save_model:
+                save_name = os.path.join(save_path, classifier_name + '_split_' + str(split_num) + '_best.pth')
+                torch.save(net.state_dict(), save_name)
+            best_val = accuracies["val"]/counts["val"]
+            best_epoch = epoch
+            best_val_test = accuracies["test"]/counts["test"]
         
-    save_name = os.path.join(save_path, classifier_name + '_split_' + str(split_num))
-    torch.save(net.state_dict(), save_name)
-    return accuracies["val"]/counts["val"], accuracies["test"]/counts["test"]
+    #save_name = os.path.join(save_path, classifier_name + '_split_' + str(split_num))
+    #torch.save(net.state_dict(), save_name)
+    return accuracies["val"]/counts["val"], accuracies["test"]/counts["test"], best_epoch, best_val_test

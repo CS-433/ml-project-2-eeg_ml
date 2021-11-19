@@ -1,17 +1,17 @@
 import torch
 
 class EEGDataset:
-    def __init__(self, eeg_signals_path, label_tag="SEX", use_window=False, window_len=100, window_s=0):
+    def __init__(self, eeg_signals_path, label_tag="genders", use_window=False, window_len=100, window_s=0):
         # Load EEG signals
         loaded = torch.load(eeg_signals_path)
-        self.data = loaded["dataset"]
+        self.data = loaded["dataset"].type(torch.FloatTensor)
         self.label_tag = label_tag
-        self.labels = loaded[self.label_tag]
+        self.labels = loaded[self.label_tag].type(torch.LongTensor)
 
         # mean/std computed from training set
         # different for different split
-        self.means = loaded["means"]
-        self.stddevs = loaded["stddevs"]
+        self.means = loaded["means"][0]
+        self.stddevs = loaded["stddevs"][0]
 
         self.use_window = use_window
         self.window_len = window_len
@@ -26,12 +26,14 @@ class EEGDataset:
     # Get item
     def __getitem__(self, i):
         # normalize EEG
-        eeg = ((self.data[i]["eeg"].float() - self.means)/self.stddevs).t()
+        eeg = (self.data[i] - self.means)/self.stddevs # (128, 300)
         if self.use_window:
-            eeg = eeg[self.window_s: self.window_s+self.window_len]
+            eeg = eeg[:, self.window_s: self.window_s+self.window_len]
+
+        eeg = eeg.t()
 
         # Get label
-        label = self.data[i]["label"]
+        label = self.labels[i]
 
         return eeg, label
 

@@ -8,8 +8,8 @@ class Options():
         self._initialized = False
 
     def initialize(self):
-        self._parser.add_argument('--eeg_dataset', type=str, default='data/eeg_signals_128_sequential_band_all_with_mean_std.pth', help="EEG dataset path")
-        self._parser.add_argument('--splits_path', type=str, default="data/splits_by_image.pth", help="splits path")
+        self._parser.add_argument('--eeg_dataset', type=str, default='data/training_data/EEG_dataset.pth', help="EEG dataset path")
+        self._parser.add_argument('--splits_path', type=str, default="data/training_data/splits.pth", help="splits path")
         self._parser.add_argument('--split_num', type=int, default=0, help="split number")
         self._parser.add_argument('--batch_size', type=int, default=128, help='input batch size')
         self._parser.add_argument('--optim', type=str, default='Adam', help='optimizer')
@@ -18,18 +18,17 @@ class Options():
         self._parser.add_argument('--classifier', type=str, required=True, help="LSTM/MLP/CNN")
         
         self._parser.add_argument('--learning_rate', default=0.001, type=float, help='learning rate')
-        self._parser.add_argument('--epochs', default=100, type=int, help='training epochs')
+        self._parser.add_argument('--epochs', default=50, type=int, help='training epochs')
         self._parser.add_argument('--GPUindex', default=0, type=int, help='which GPU to use')
 
 
         self._parser.add_argument('--no_cuda', default=False, help="disable CUDA", action="store_true")
 
-        self._parser.add_argument('--window_len', default=200, type=int, help='the length of the window')
         self._parser.add_argument('--window_s', default=0, type=int, help='the starting point of the window')
         self._parser.add_argument('--channel_idx', default=0, type=int, help='the idx of the channel') 
         
-        
         self._parser.add_argument('--save_path', type=str, default='checkpoints', help='the path to save trained models')
+        self._parser.add_argument('--save_model', default=False, help="save checkpoints", action="store_true")
         
 
         self._initialized = True
@@ -46,9 +45,6 @@ class Options():
             except:
                 print('Invalid path to save models! Quit!')
                 sys.exit()
-
-        # set is train or set
-        self._opt.is_train = self.is_train
 
         # get and set gpus
         args = vars(self._opt)
@@ -68,12 +64,12 @@ class Options():
     
         self.train_mode_param = {'full':{'channel_idx':None,
                                          'channel_num':128, 
-                                         'eeg_length':500},
+                                         'eeg_length':300},
                                          
                                  'window':{'channel_idx':None,
                                            'channel_num':128, 
-                                           'eeg_length':200},
+                                           'eeg_length':80},
 
                                  'channel':{'channel_idx':self._opt.channel_idx,
                                            'channel_num':1, 
-                                           'eeg_length':500},}
+                                           'eeg_length':300},}

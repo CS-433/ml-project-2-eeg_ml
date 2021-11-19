@@ -4,22 +4,6 @@ import torch
 import numpy as np
 import random
 
-
-def load_xlsx(path):
-    """Load xlsx and convert it to the metrics system."""
-    xl_file = pd.ExcelFile(path)
-    dfs = {sheet_name: xl_file.parse(sheet_name) 
-          for sheet_name in xl_file.sheet_names} # Feuil1/Feuil2/Feuil3
-    variables = dfs['Feuil1']
-    group, sex, age, voc, digit_span, acc_deno = variables.loc[:,'GROUP'], variables.loc[:,'SEX'], variables.loc[:,'AGE'], variables.loc[:,'VOC NB'], variables.loc[:,'MDC NBTOT'], variables.loc[:,'Acc_DENO'] 
-
-    group = group.values.tolist()
-    sex = sex.values.tolist()
-    age = age.values.tolist()
-    voc = voc.values.tolist()
-    digit_span = digit_span.values.tolist()
-    return group, sex, age, voc, digit_span, acc_deno
-
 def cross_validation(num_samples, ratio=0.1, seed=42):
     num_val_set = int(1/ratio)
     num_val_sample = int(num_samples*ratio)
@@ -37,12 +21,11 @@ def cross_validation(num_samples, ratio=0.1, seed=42):
     print('%d train/val sets are created.'%num_val_set)
     return train_sets, val_sets
 
-def create_split(data_path, num_split, ratio_test, seed=42, debug=False):
+def create_split(data, save_path, num_split, ratio_test, seed=42, debug=False):
     splits = {'splits':{}}
     for i in range(num_split):
         splits['splits'][i] = {'train':[], 'val':[], 'test':[]}
 
-    data = torch.load(data_path)
     len_data = len(data)
     num_test = int(len_data*ratio_test)
     _range = [i for i in range(len_data)]
@@ -61,35 +44,38 @@ def create_split(data_path, num_split, ratio_test, seed=42, debug=False):
         val_idx = [rest_idx[idx] for idx in val_set]
         splits['splits'][i]['train'] = train_idx
         splits['splits'][i]['val'] = val_idx
+        print('train_idx ', len(train_idx), ', val_idx ', len(val_idx))
 
         if debug:
             assert len(train_idx) + len(val_idx) == len(rest_idx)
             assert len(train_idx) == len(set(train_idx))
             assert len(val_idx) == len(set(val_idx))
             assert len(rest_idx) == len(set(rest_idx))
-            assert set(train_idx) + set(val_idx) == set(rest_idx)
+            assert set(train_idx).union(set(val_idx)) == set(rest_idx)
             assert len(set(train_idx) - set(val_idx)) == len(train_idx)
 
-    torch.save(splits, data_path)
+    torch.save(splits, save_path)
     return splits
 
-def get_mean_std(data, splits, split_num):
-    train_idx = splits['splits'][split_num]['train']
-    data_train = data[train_idx]
-    mean = torch.mean(data, dim=0, keepdim=True)
-    std = torch.std(data, unbiased=False, dim=0, keepdim=True)
+def get_mean_std(data, idx):
+    data_train = data[idx]
+    #print('data_train: ', data_train.shape)
+    mean = torch.mean(data, dim=(0,2), keepdim=True)
+    std = torch.std(data, unbiased=False, dim=(0,2), keepdim=True)
     return mean, std
 
 def create_dataset(raw_data_path, num_split, ratio_test, save_path):
 
-    split_save_path = os.path.join(save_path, 'splits')
-    splits = create_split(split_save_path, num_split, ratio_test, debug=True)
+    dataset = torch.load(raw_data_path)
 
-    for i in range(num_split):
-        means, stds = get_mean_std(dataset['dataset'], splits, split_num)
-        dataset['means'] = means
-        dataset["stddevs"] = stds
+    split_save_path = os.path.join(save_path, 'splits.pth')
+    splits = create_split(dataset['dataset'], split_save_path, num_split, ratio_test, debug=True)
 
-    dataset_save_path = os.path.join(save_path, 'EEG_dataset')
+    means, stds = get_mean_std(dataset['dataset'], splits['splits'][0]['train']+splits['splits'][0]['val'])
+    print(means.shape, stds.shape)
+    dataset['means'] = means
+    dataset["stddevs"] = stds
+
+    dataset_save_path = os.path.join(save_path, 'EEG_dataset.pth')
     torch.save(dataset, dataset_save_path)
     return
