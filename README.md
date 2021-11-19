@@ -9,6 +9,7 @@ You can find the code here that analysis the EEG data by different methods, incl
 - collection
 - PyTorch (Other versions may also work.)
 
+## Getting Started
 ### Training
 To train the classifier, run
 ```
