@@ -38,7 +38,7 @@ loaders = {split: DataLoader(Splitter(dataset, split_path=opt.splits_path, split
 
 
 if opt.classifier == 'LSTM':
-	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=128)
+	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=class_num)
 elif opt.classifier == 'MLP':
 	net = classifier_MLP(input_size=channel_num*eeg_length, n_class=class_num)
 elif opt.classifier == 'CNN':
