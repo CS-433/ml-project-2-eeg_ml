@@ -27,7 +27,6 @@ class_num = 2
 split_num = opt.split_num
 save_path = opt.save_path
 save_model = opt.save_model
-
 channel_idx = opt_mode['channel_idx']
 channel_num = opt_mode['channel_num']
 eeg_length = opt_mode['eeg_length']
@@ -39,7 +38,7 @@ loaders = {split: DataLoader(Splitter(dataset, split_path=opt.splits_path, split
 
 
 if opt.classifier == 'LSTM':
-	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=128, GPUindex=opt.GPUindex)
+	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=128)
 elif opt.classifier == 'MLP':
 	net = classifier_MLP(input_size=channel_num*eeg_length, n_class=class_num)
 elif opt.classifier == 'CNN':
