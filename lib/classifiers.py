@@ -18,13 +18,17 @@ class classifier_LSTM(nn.Module):
         self.lstm_layers = lstm_layers
         self.lstm_size = lstm_size
         self.output_size = output_size
+        self.dropout_p = 0.5
         self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
         self.lin1 = nn.Linear(lstm_size, 128)
         self.lin2 = nn.Linear(128, output_size)
+        self.dropout = nn.Dropout(p=self.dropout_p)
 
         self.act = nn.ReLU()
 
         self.num_parameters = self.count_parameters()
+        print(self.num_parameters)
+        #sys.exit()
 
     def count_parameters(self, ):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -33,8 +37,10 @@ class classifier_LSTM(nn.Module):
         # x - (B, L, D)
         batch_size = x.size(0)
         x = self.lstm(x)[0][:,-1,:]
+        x = self.dropout(x)
         x = self.lin1(x)
         x = self.act(x)
+        x = self.dropout(x)
         x = self.lin2(x)
         return x
 
@@ -47,14 +53,16 @@ class classifier_MLP(nn.Module):
     def __init__(self, input_size, n_class):
         super(classifier_MLP,self).__init__()
         self.input_size = input_size
+        self.dropout_p = 0.5
 
         self.act = nn.ReLU()
         self.lin1 = nn.Linear(input_size, 128)
-        self.lin2 = nn.Linear(128, 128)
+        #self.lin2 = nn.Linear(128, 128)
         self.lin3 = nn.Linear(128, n_class)
         self.dropout = nn.Dropout(p=self.dropout_p)
 
         self.num_parameters = self.count_parameters()
+        print(self.num_parameters)
 
     def count_parameters(self, ):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -64,8 +72,10 @@ class classifier_MLP(nn.Module):
         x = x.reshape(batch_size,-1)
         x = self.lin1(x)
         x = self.act(x)
-        x = self.lin2(x)
-        x = self.act(x)
+        x = self.dropout(x)
+        #x = self.lin2(x)
+        #x = self.act(x)
+        #x = self.dropout(x)
         x = self.lin3(x)
 
         return x
@@ -89,8 +99,8 @@ class CNN_feature(nn.Module):
         self.fc1_in = self.channel*self.conv1_out_channels
         self.fc1_out = 40 
 
-        self.pool1_size = 16#128
-        self.pool1_stride = 8#64
+        self.pool1_size = 8#16#128
+        self.pool1_stride = 4#8#64
         self.pool1_out = int(math.floor(((self.conv1_out-self.pool1_size)/self.pool1_stride+1)))
 
         self.dropout_p = 0.5
