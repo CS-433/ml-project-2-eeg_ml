@@ -7,6 +7,8 @@ You can find the code here that analysis the EEG data by different methods, incl
 - openpyxl
 - numpy
 - collection
+- matplotlib 2.1.1
+- scipy 1.7.1
 - PyTorch (Other versions may also work.)
 
 ## Getting Started
