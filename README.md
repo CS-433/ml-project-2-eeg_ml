@@ -10,7 +10,8 @@ You can find the code here that analysis the EEG data by different methods, incl
 - matplotlib 2.1.1
 - scipy 1.7.1
 - PyTorch 1.7.1 
-(Other versions may also work.)
+
+Other versions may also work.
 
 ## Getting Started
 ### Training
