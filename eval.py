@@ -24,7 +24,6 @@ from lib.classifiers import classifier_LSTM, classifier_MLP, classifier_CNN, net
 opt, opt_mode = Options().parse()
 
 class_num = 2
-#load_path = opt.load_path
 
 channel_idx = opt_mode['channel_idx']
 channel_num = opt_mode['channel_num']
@@ -33,7 +32,7 @@ eeg_length = opt_mode['eeg_length']
 dataset = EEGDataset(opt.eeg_dataset, use_window=(opt.train_mode == 'window'), window_len=eeg_length, window_s=opt.window_s)
 
 if opt.classifier == 'LSTM':
-	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=128, GPUindex=opt.GPUindex)
+	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=class_num)
 elif opt.classifier == 'MLP':
 	net = classifier_MLP(input_size=channel_num*eeg_length, n_class=class_num)
 elif opt.classifier == 'CNN':
