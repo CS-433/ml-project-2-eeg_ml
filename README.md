@@ -32,6 +32,11 @@ The script will load the model trained on different folds from *PATH_TO_CHECKPOI
 
 ### Visualization
 <p align="center">
+  <img src="figs/heat-sign.png">
+</p>
+
+
+<p align="center">
   <img height="200" src="figs/topographic.gif">
 </p>
 
