@@ -32,7 +32,7 @@ The script will load the model trained on different folds from *PATH_TO_CHECKPOI
 
 ### Visualization
 <p align="center">
-  <img height="320" src="figs/topographic.gif">
+  <img height="260" src="figs/topographic.gif">
 </p>
 
 <!---
