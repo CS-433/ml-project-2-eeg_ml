@@ -30,6 +30,11 @@ python  eval.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel
 
 The script will load the model trained on different folds from *PATH_TO_CHECKPOINTS* to evaluate on the test set. The test accuracy will be shown on the screen.
 
+### Visualization
+<p align="center">
+  <img height="320" src="figs/topographic.gif">
+</p>
+
 <!---
 ## Getting Started
 ### Installing
