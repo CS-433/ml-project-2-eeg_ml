@@ -1,5 +1,5 @@
-# EEG-classification
-You can find the code here that analysis the EEG data by different methods, including MLP, LSTM and CNN. Before running the code, you need to download the dataset from [here](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and put it under *./data/training_data*. 
+# Gender-classification...
+You can find the codes here for gender classification from EEG data. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a GRU and a CNN. Before running the code, you need to download the dataset from [Data1](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and [Data2](https://drive.google.com/file/d/1Y5UCXA82ko64fAdmeH0Kn4C2-EN-tVJJ/view?usp=sharing) and put them under *./data/training_data*.
 
 ## Prerequisites
 - Python 3
@@ -39,6 +39,10 @@ The script will load the model trained on different folds from *PATH_TO_CHECKPOI
 <p align="center">
   <img height="200" src="figs/topographic.gif">
 </p>
+
+### Statistic Analysis
+
+
 
 <!---
 ## Getting Started
