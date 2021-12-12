@@ -97,72 +97,27 @@ the temporal amplitude changes of female's and male's signals. In the middel is 
 </p>
 
 ### Statistic Analysis
-We also provide the code for the statistic analysis introduced in our paper. For tANOVA analysis, run
+We also provide the code for the statistic analysis introduced in our paper.
+
+* For tANOVA analysis, run
 ```
 python statistic_analysis.py --analysis tANOVA --fig_path ./figs
 ```
 You will have the following figure showing the p-value at each time point.
 
-For t-test analysis, run
+* For t-test analysis, run
 ```
 python statistic_analysis.py --analysis ttest --fig_path ./figs
 ```
 You will have the following figure showing the p-value for each channel at every time point.
 
-For behavioral analysis, run
+* For behavioral analysis, run
 ```
 python statistic_analysis.py --analysis htest
 ```
-
+You will have the results as shown in the following table.
 | | Female | Male | Kruskal-Wallis Test |                     
 |:---:|:---:|:---:|:---:|
 | Accuracy           |0.839(0.079)|0.837(0.067)| 0.819|  
 | Reaction Time (ms) |943.8(128.6)|962.7(127.0)| 0.503|  
 
-
-
-<!---
-## Getting Started
-### Installing
-Clone this repo:
-
-```bash
-git clone ...
-cd ReenactGAN
-```
-
-### Training
-The bounday encoder is trained on WFLW and Helen dataset, and both of the boundary transformer and decoder are trained on [CelebV Dataset](https://drive.google.com/file/d/1jQ6d76T5GQuvQH4dq8_Wq1T0cxvN0_xp/view?usp=sharing). The training of the encoder requires a huge amount of time, so you can get the pretrained encoder at *./pretrained_models/v8_net_boundary_detection.pth*. 
-
-To train the boundary transformer, run
-```bash
-sh script/train_Transformer.sh
-```
-You need to take care of the arguments **--root_dir** and **--which_target**.  **--root_dir** refers to the directory of the dataset, and **--which_target** refers to which person to be the target
-```bash
-0: Emmanuel_Macron
-1: Kathleen
-2: Jack_Ma
-3: Theresa_May
-4: Donald_Trump
-```
-
-To train the decoder, run
-```bash
-sh script/train_Decoder.sh
-```
-Also, you need to take care of the value of **--root_dir**, which refers to the directory of the target person.
-
-### Testing
-To test the model, run
-```bash
-sh script/move_models.sh ./checkpoints/Transformer_2019-xx-xx_xx-xx-xx/G_BA_xx.pth ./checkpoints/Decoder_2019-xx-xx_xx-xx-xx/xx_net_G.pth trump
-sh script/test.sh
-```
-The images used for testing is at ./test_imgs/samples/image, and the text file, ./test_imgs/samples/images_list.txt, contains the list of these images. After the testing, you will get a floder named **results**, which contains the images of the real and reenacted faces, the boundaries and the transformed boundaries of the real faces. Here are some results.
-
-<img src='imgs/results.png' width="1000px">
-
-You can get our trained models from [Decoder](https://drive.google.com/file/d/1MBWABJK9webZxAMvN9Cl5FBhXateppzu/view?usp=sharing) and [Transformer](https://drive.google.com/open?id=1v-8kh0N56alKiSoBAENXp9KNJ0lg_Qtq).
-
--->
