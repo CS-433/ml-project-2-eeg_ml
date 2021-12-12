@@ -97,9 +97,28 @@ the temporal amplitude changes of female's and male's signals. In the middel is 
 </p>
 
 ### Statistic Analysis
+We also provide the code for the statistic analysis introduced in our paper. For tANOVA analysis, run
+```
+python statistic_analysis.py --analysis tANOVA --fig_path ./figs
+```
+You will have the following figure showing the p-value at each time point.
+
+For t-test analysis, run
 ```
 python statistic_analysis.py --analysis ttest --fig_path ./figs
 ```
+You will have the following figure showing the p-value for each channel at every time point.
+
+For behavioral analysis, run
+```
+python statistic_analysis.py --analysis htest
+```
+
+| | Female | Male | Kruskal-Wallis Test |                     
+|:---:|:---:|:---:|:---:|
+| Accuracy           |0.839(0.079)|0.837(0.067)| 0.819|  
+| Reaction Time (ms) |943.8(128.6)|962.7(127.0)| 0.503|  
+
 
 
 <!---
