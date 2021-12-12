@@ -131,12 +131,18 @@ We also provide the code for the statistic analysis introduced in our paper.
   python statistic_analysis.py --analysis tANOVA --fig_path ./figs
   ```
   You will have the following figure showing the p-value at each time point.
+  <p align="center">
+  <img src="figs/tANOVA.png">
+</p>
 
 * For t-test analysis, run
   ```
   python statistic_analysis.py --analysis ttest --fig_path ./figs
   ```
   You will have the following figure showing the p-value for each channel at every time point.
+  <p align="center">
+  <img src="figs/t-test.png">
+</p>
 
 * For behavioral analysis, run
   ```
