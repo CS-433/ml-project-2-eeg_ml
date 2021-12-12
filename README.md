@@ -63,6 +63,7 @@ python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
 ```
 The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are trained on *./data/training_data/EEG_dataset.pth* and *./data/training_data/EEG_dataset_by_subject.pth* respectively. After the evalution of our pretrained models, you should get the following results which are reported in our paper.
+
 | EEG_dataset | LIN | MLP | GRU | CNN |                     <!---| EEG_dataset_by_subject | LIN | MLP | GRU | CNN |-->
 |:-----------:|:---:|:---:|:---:|:---:|                     <!---|:----------------------:|:---:|:---:|:---:|:---:|-->
 | ACC         |76.0%|80.1%|85.5%|90.0%|                     <!---| ACC                    |55.5%|53.5%|58.5%|66.3%| -->
