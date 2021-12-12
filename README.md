@@ -82,13 +82,15 @@ The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are 
 
 
 ### Visualization
+To generate the significance map that indicates in which channels and time periods the signals of female and male have dissimilarities, run
 ```
 python generate_guided_backprop.py --load_path checkpoints/CNN/random --gif 
 ```
+This will give you the following figure and gif. If you do not want to generate gif as it will take a lot of time, drop **--gif**. The left and right images in the gif are 
+the temporal amplitude changes of female's and male's signals. In the middel is our corresponding significance map.
 <p align="center">
   <img src="figs/heat-sign.png">
 </p>
-
 
 <p align="center">
   <img height="200" src="figs/topographic.gif">
