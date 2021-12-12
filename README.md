@@ -68,13 +68,13 @@ The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are 
 <tr><th>EEG_dataset </th><th>EEG_dataset_by_subject</th></tr>
 <tr><td>
   
-|  | LIN | MLP | GRU | CNN |                     
+| Model | LIN | MLP | GRU | CNN |                     
 |:-----------:|:---:|:---:|:---:|:---:|
 | ACC         |76.0%|80.1%|85.5%|90.0%|  
 
 </td><td>
   
-|  | LIN | MLP | GRU | CNN |
+| Model | LIN | MLP | GRU | CNN |
 |:-----------:|:---:|:---:|:---:|:---:|
 | ACC         |55.5%|53.5%|58.5%|66.3%|
 
