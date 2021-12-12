@@ -11,7 +11,9 @@ This is the repository for our ML Project 2 - Probing EEG Signals with Neural-Ne
     - [Statistic Analysis](#statistic-analysis)
  
 ## Overview
-You can find the codes here for gender classification from EEG data. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a recurrent model (GRU) and a convolutional model (CNN). 
+We consider investigating the effect of gender in word production by classifying Electroencephalography (EEG) brain signals. The EEG signals are analyzed using various models. To understand the disparity of brain activities between female and male, we propose a gradient-based method to indicate the brain regions and time periods exhibiting dominant differences in the picture naming task, which helps us reveal dynamic changes of brain in a more accurate and easier fashion.
+
+You can find the codes here for gender classification on EEG data and for significance visualization of signal dissimilarities. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a recurrent model (GRU) and a convolutional model (CNN).
 
 ## Prerequisites
 - Python 3
