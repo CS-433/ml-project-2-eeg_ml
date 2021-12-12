@@ -31,6 +31,9 @@ python  eval.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel
 The script will load the model trained on different folds from *PATH_TO_CHECKPOINTS* to evaluate on the test set. The test accuracy will be shown on the screen.
 
 ### Visualization
+```
+python generate_guided_backprop.py --load_path checkpoints/CNN/random --gif 
+```
 <p align="center">
   <img src="figs/heat-sign.png">
 </p>
@@ -41,7 +44,9 @@ The script will load the model trained on different folds from *PATH_TO_CHECKPOI
 </p>
 
 ### Statistic Analysis
-
+```
+python statistic_analysis.py --analysis ttest --fig_path ./figs
+```
 
 
 <!---
