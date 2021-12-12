@@ -8,6 +8,29 @@ import torch.optim
 import numpy as np
 
 ##############################################################
+# MLP classifier (2FC)
+##############################################################
+class classifier_LIN(nn.Module):
+
+    def __init__(self, input_size, n_class):
+        super(classifier_LIN,self).__init__()
+        self.input_size = input_size
+
+        self.lin1 = nn.Linear(input_size, n_class)
+
+        self.num_parameters = self.count_parameters()
+        print(self.num_parameters)
+
+    def count_parameters(self, ):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
+    def forward(self, x):
+        batch_size = x.size(0)
+        x = x.reshape(batch_size,-1)
+        x = self.lin1(x)
+        return x
+
+##############################################################
 # LSTM classifier
 ##############################################################
 class classifier_LSTM(nn.Module):
@@ -19,8 +42,10 @@ class classifier_LSTM(nn.Module):
         self.lstm_size = lstm_size
         self.output_size = output_size
         self.dropout_p = 0.5
-        self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
-        self.lin1 = nn.Linear(lstm_size, 128)
+        #self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
+        self.lstm = nn.GRU(input_size, lstm_size, num_layers=1, batch_first=True)
+        #self.lstm = nn.RNN(input_size, lstm_size, num_layers=1, batch_first=True, nonlinearity ='relu')
+        self.lin1 = nn.Linear(lstm_size*10, 128)
         self.lin2 = nn.Linear(128, output_size)
         self.dropout = nn.Dropout(p=self.dropout_p)
 
@@ -36,8 +61,10 @@ class classifier_LSTM(nn.Module):
     def forward(self, x):
         # x - (B, L, D)
         batch_size = x.size(0)
-        x = self.lstm(x)[0][:,-1,:]
+        #x = self.lstm(x)[0][:,-1,:]
+        x = self.lstm(x)[0][:,::30,:]
         x = self.dropout(x)
+        x = x.reshape(batch_size, -1)
         x = self.lin1(x)
         x = self.act(x)
         x = self.dropout(x)
@@ -99,8 +126,8 @@ class CNN_feature(nn.Module):
         self.fc1_in = self.channel*self.conv1_out_channels
         self.fc1_out = 40 
 
-        self.pool1_size = 8#16#128
-        self.pool1_stride = 4#8#64
+        self.pool1_size = 8#8#16#128
+        self.pool1_stride = 4#4#8#64
         self.pool1_out = int(math.floor(((self.conv1_out-self.pool1_size)/self.pool1_stride+1)))
 
         self.dropout_p = 0.5
@@ -113,22 +140,17 @@ class CNN_feature(nn.Module):
 
         self.fc2_in = self.pool1_out*self.fc1_out
 
-        print(self.conv1_out, self.pool1_out)
-        #sys.exit()
+        #print(self.conv1_out, self.pool1_out)
 
     def forward(self, x):
 	    #x - (B, L, D)
         batch_size = x.shape[0]
         len_eeg = x.shape[1]
-        #num_channel = x.shape[2]
-        #print(x.shape)
-        #sys.exit()
 
         x = x.permute(0,2,1)
         x = x.reshape(-1, len_eeg)
         x = x.unsqueeze(1) # (B*D, 1, L)
 
-	    #print x.shape
         x = self.conv1(x) # (B*D, 8, L)
         x = self.activation(x)
 
@@ -156,7 +178,7 @@ class classifier_CNN(nn.Module):
         self.classifier = nn.Linear(self.fc2_in, n_class)
         
         self.num_parameters = self.count_parameters()
-        print(self.num_parameters)
+        #print(self.num_parameters)
         #sys.exit()
 
     def count_parameters(self, ):
@@ -272,10 +294,18 @@ def net_trainer(net, loaders, opt, save_path, classifier_name='', split_num=0, c
             
                 # Forward
                 output = net(input)
-                loss = F.cross_entropy(output, target)
+                if classifier_name == 'LIN':
+                    output = output.reshape(-1)
+                    loss = F.binary_cross_entropy_with_logits(output, target.float())
+                else:
+                    loss = F.cross_entropy(output, target)
                 losses[split] += loss.item()*len(input)
                 # Compute accuracy
-                _, pred = output.max(1) # (max, max_indices)
+                if classifier_name == 'LIN':
+                    pred = torch.zeros_like(output) if opt.no_cuda else torch.zeros_like(output).cuda(opt.GPUindex)
+                    pred[output>=0] = 1
+                else:
+                    _, pred = output.max(1) # (max, max_indices)
                 correct = pred.eq(target).float().sum()
                 #accuracy = correct/input.size(0)
                 accuracies[split] += correct.item()
@@ -336,7 +366,12 @@ def net_tester(net, loaders, opt, classifier_name='', split_num=0, channel_idx=N
         # Forward
         output = net(input)
         # Compute accuracy
-        _, pred = output.max(1) # (max, max_indices)
+        if classifier_name == 'LIN':
+            output = output.reshape(-1)
+            pred = torch.zeros_like(output) if opt.no_cuda else torch.zeros_like(output).cuda(opt.GPUindex)
+            pred[output>=0] = 1
+        else:
+            _, pred = output.max(1) # (max, max_indices)
         correct = pred.eq(target).float().sum()
         accuracies += correct.item()
         counts += len(input)
