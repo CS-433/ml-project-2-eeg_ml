@@ -35,7 +35,7 @@ Before running the code, you need to download the dataset from [EEG_dataset.pth]
 
 The difference between `EEG_dataset.pth` and `EEG_dataset_by_subject.pth` is the way how we create the folds for cross validation. EEG_dataset.pth is used for training/testing on the data from the same distribution, while EEG_dataset_by_subject.pth is used for training/testing on the data from different distribution (cross-subject evaluation) which is harder. See Sec. B of the Appendices in our paper for more descriptions of the two different settings.
 
-You should have files organized in the following directories:
+You should have necessary data files organized in the following directories:
 ```
 ./data
 |--Biosemi128OK.xyz 
