@@ -68,6 +68,11 @@ The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are 
 |:-----------:|:---:|:---:|:---:|:---:|                     <!---|:----------------------:|:---:|:---:|:---:|:---:|-->
 | ACC         |76.0%|80.1%|85.5%|90.0%|                     <!---| ACC                    |55.5%|53.5%|58.5%|66.3%| -->
 
+| type|name |description |
+|----|---|---|
+| *address* | _user | address of certificate owner |
+| *bytes32* | _hash | sha256 hash of the certificate text |
+
 
 ### Visualization
 ```
