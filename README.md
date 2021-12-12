@@ -19,7 +19,7 @@ Other versions may also work.
 ### Data
 Before running the code, you need to download the dataset from [EEG_dataset.pth](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and [EEG_dataset_by_subject.pth](https://drive.google.com/file/d/1Y5UCXA82ko64fAdmeH0Kn4C2-EN-tVJJ/view?usp=sharing) and put them under *./data/training_data*. You also need to download our pretrained models from here and unzip them to *./checkpoints*.
 
-The difference between EEG_dataset.pth and EEG_dataset_by_subject.pth is the way how we create the folds for cross validation. EEG_dataset.pth is used for training/testing on the data from the same distribution, while EEG_dataset_by_subject.pth is used for training/testing on the data from the different distribution (cross-subject evaluation) which is harder. See Sec. B of the Appendices in our paper for more descriptions of the setting.
+The difference between EEG_dataset.pth and EEG_dataset_by_subject.pth is the way how we create the folds for cross validation. EEG_dataset.pth is used for training/testing on the data from the same distribution, while EEG_dataset_by_subject.pth is used for training/testing on the data from different distribution (cross-subject evaluation) which is harder. See Sec. B of the Appendices in our paper for more descriptions of the two different settings.
 
 You should have files organized in the following directories:
 ```
