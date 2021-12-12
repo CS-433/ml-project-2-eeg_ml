@@ -83,7 +83,6 @@ To test the classifier, run
 ```
 python  eval.py --classifier CLASSIFIER_NAME --train_mode full --load_path PATH_TO_CHECKPOINTS --eeg_dataset PATH_TO_EEG_DATA --splits_path PATH_TO_SPLIT_FILE
 ```
-
 The script will load models trained on different folds from `PATH_TO_CHECKPOINTS` to evaluate on the test set. The test accuracy will be shown on the screen.
 
 For example, if you want to use our pretrained CNN models for evaluation, you can run
@@ -116,7 +115,7 @@ To generate the significance map that indicates in which channels and time perio
 python generate_guided_backprop.py --load_path checkpoints/CNN/random --gif 
 ```
 This will give you the following figure and gif. If you do not want to generate gif as it will take a lot of time, drop **--gif**. The left and right images in the gif are 
-the temporal amplitude changes of female's and male's signals. In the middel is our corresponding significance map.
+the temporal amplitude changes of female's and male's signals. In the middle is our corresponding significance map.
 <p align="center">
   <img src="figs/heat-sign.png">
 </p>
@@ -129,6 +128,7 @@ the temporal amplitude changes of female's and male's signals. In the middel is 
 We also provide the code for the statistic analysis introduced in our paper.
 
 * For tANOVA analysis, run
+
   ```
   python statistic_analysis.py --analysis tANOVA --fig_path ./figs
   ```
@@ -138,6 +138,7 @@ We also provide the code for the statistic analysis introduced in our paper.
 </p>
 
 * For t-test analysis, run
+
   ```
   python statistic_analysis.py --analysis ttest --fig_path ./figs
   ```
@@ -146,7 +147,8 @@ We also provide the code for the statistic analysis introduced in our paper.
   <img src="figs/t-test.png">
 </p>
 
-* For behavioral analysis, run
+* For behavioral data analysis, run
+
   ```
   python statistic_analysis.py --analysis htest
   ```
