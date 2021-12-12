@@ -1,5 +1,5 @@
 # Gender-classification...
-You can find the codes here for gender classification from EEG data. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a GRU and a CNN. Before running the code, you need to download the dataset from [Data1](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and [Data2](https://drive.google.com/file/d/1Y5UCXA82ko64fAdmeH0Kn4C2-EN-tVJJ/view?usp=sharing) and put them under *./data/training_data*.
+You can find the codes here for gender classification from EEG data. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a recurrent model (GRU) and a convolutional model (CNN). 
 
 ## Prerequisites
 - Python 3
@@ -10,25 +10,63 @@ You can find the codes here for gender classification from EEG data. We implemen
 - matplotlib 2.1.1
 - scipy 1.7.1
 - PyTorch 1.7.1 
+- imageio
+- opencv
 
 Other versions may also work.
 
 ## Getting Started
-### Training
-To train the classifier, run
+### Data
+Before running the code, you need to download the dataset from [EEG_dataset.pth](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and [EEG_dataset_by_subject.pth](https://drive.google.com/file/d/1Y5UCXA82ko64fAdmeH0Kn4C2-EN-tVJJ/view?usp=sharing) and put them under *./data/training_data*. You also need to download our pretrained models from here and unzip them to *./checkpoints*.
+
+The difference between EEG_dataset.pth and EEG_dataset_by_subject.pth is the way how we create the folds for cross validation. EEG_dataset.pth is used for training/testing on the data from the same distribution, while EEG_dataset_by_subject.pth is used for training/testing on the data from the different distribution (cross-subject evaluation) which is harder. See Sec. B of the Appendices in our paper for more descriptions of the setting.
+
+You should have files organized in the following directories:
 ```
-python  main.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel) --split_num SPLIT_NUMBER --save_model 
+./data/Biosemi128OK.xyz 
+./data/xyz.npy
+./data/training_data/EEG_dataset.pth
+./data/training_data/splits.pth
+./data/training_data/EEG_dataset_by_subject.pth
+./data/training_data/splits_by_subject.pth
+
+./checkpoints/LIN/random/LIN_split_X_best.pth
+./checkpoints/LIN/by-subject/LIN_split_X_best.pth
+./checkpoints/MLP/random/MLP_split_X_best.pth
+./checkpoints/MLP/by-subject/MLP_split_X_best.pth
+./checkpoints/GRU/random/GRU_split_X_best.pth
+./checkpoints/GRU/by-subject/GRU_split_X_best.pth
+./checkpoints/CNN/random/CNN_split_X_best.pth
+./checkpoints/CNN/by-subject/CNN_split_X_best.pth
 ```
 
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, the number of epoch is 50 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at *./checkpoints* automatically and be named in the format as *CNN_split_0_best.pth*. For more information of options, check *./lib/options.py*.
+### Training
+To train the classifier on *./data/training_data/EEG_dataset.pth* and *./data/training_data/EEG_dataset_by_subject.pth*, run the following lines respectively.
+```
+python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT_NUMBER --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth --save_model 
+python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT_NUMBER --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth --save_model 
+```
+
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at *./checkpoints* automatically and be named in the format as *CNN_split_X_best.pth*. For more information of options, check *./lib/options.py*.
 
 ### Testing
 To test the classifier, run
 ```
-python  eval.py --classifier CLASSIFIER_NAME --train_mode full(or window/channel) --load_path PATH_TO_CHECKPOINTS 
+python  eval.py --classifier CLASSIFIER_NAME --train_mode full --load_path PATH_TO_CHECKPOINTS --eeg_dataset PATH_TO_EEG_DATA --splits_path PATH_TO_SPLIT_FILE
 ```
 
-The script will load the model trained on different folds from *PATH_TO_CHECKPOINTS* to evaluate on the test set. The test accuracy will be shown on the screen.
+The script will load models trained on different folds from *PATH_TO_CHECKPOINTS* to evaluate on the test set. The test accuracy will be shown on the screen.
+
+For example, if you want to use our pretrained CNN models for evaluation, you can run
+```
+python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+```
+The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are trained on *./data/training_data/EEG_dataset.pth* and *./data/training_data/EEG_dataset_by_subject.pth* respectively. After the evalution of our pretrained models, you should get the following results which are reported in our paper.
+| EEG_dataset | LIN | MLP | GRU | CNN |                     | EEG_dataset_by_subject | LIN | MLP | GRU | CNN |
+|:-----------:|:---:|:---:|:---:|:---:|                     |:----------------------:|:---:|:---:|:---:|:---:|
+| ACC         |76.0%|80.1%|85.5%|90.0%|                     | ACC                    |55.5%|53.5%|58.5%|66.3%| 
+
 
 ### Visualization
 ```
