@@ -29,37 +29,52 @@ Other versions may also work.
 
 ## Getting Started
 ### Data
-Before running the code, you need to download the dataset from [EEG_dataset.pth](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and [EEG_dataset_by_subject.pth](https://drive.google.com/file/d/1Y5UCXA82ko64fAdmeH0Kn4C2-EN-tVJJ/view?usp=sharing) and put them under *./data/training_data*. You also need to download our pretrained models from here and unzip them to *./checkpoints*.
+Before running the code, you need to download the dataset from [EEG_dataset.pth](https://drive.google.com/file/d/1zQi72b9_j1zbEUPtQorYEv29_3OLVOe6/view?usp=sharing) and [EEG_dataset_by_subject.pth](https://drive.google.com/file/d/1Y5UCXA82ko64fAdmeH0Kn4C2-EN-tVJJ/view?usp=sharing) and put them under `./data/training_data`. You also need to download our pretrained models from here and unzip them to `./checkpoints`.
 
-The difference between EEG_dataset.pth and EEG_dataset_by_subject.pth is the way how we create the folds for cross validation. EEG_dataset.pth is used for training/testing on the data from the same distribution, while EEG_dataset_by_subject.pth is used for training/testing on the data from different distribution (cross-subject evaluation) which is harder. See Sec. B of the Appendices in our paper for more descriptions of the two different settings.
+The difference between `EEG_dataset.pth` and `EEG_dataset_by_subject.pth` is the way how we create the folds for cross validation. EEG_dataset.pth is used for training/testing on the data from the same distribution, while EEG_dataset_by_subject.pth is used for training/testing on the data from different distribution (cross-subject evaluation) which is harder. See Sec. B of the Appendices in our paper for more descriptions of the two different settings.
 
 You should have files organized in the following directories:
 ```
-./data/Biosemi128OK.xyz 
-./data/xyz.npy
-./data/training_data/EEG_dataset.pth
-./data/training_data/splits.pth
-./data/training_data/EEG_dataset_by_subject.pth
-./data/training_data/splits_by_subject.pth
+./data
+|--Biosemi128OK.xyz 
+|--xyz.npy
+|--training_data
+   |--EEG_dataset.pth
+   |--splits.pth
+   |--EEG_dataset_by_subject.pth
+   |--splits_by_subject.pth
 
-./checkpoints/LIN/random/LIN_split_X_best.pth
-./checkpoints/LIN/by-subject/LIN_split_X_best.pth
-./checkpoints/MLP/random/MLP_split_X_best.pth
-./checkpoints/MLP/by-subject/MLP_split_X_best.pth
-./checkpoints/GRU/random/GRU_split_X_best.pth
-./checkpoints/GRU/by-subject/GRU_split_X_best.pth
-./checkpoints/CNN/random/CNN_split_X_best.pth
-./checkpoints/CNN/by-subject/CNN_split_X_best.pth
+./checkpoints
+|--LIN
+   |--random
+      |--LIN_split_X_best.pth
+   |--by-subject
+      |--LIN_split_X_best.pth
+|--MLP
+   |--random
+      |--MLP_split_X_best.pth
+   |--by-subject
+      |--MLP_split_X_best.pth
+|--GRU
+   |--random
+      |--GRU_split_X_best.pth
+   |--by-subject
+      |--GRU_split_X_best.pth
+|--CNN
+   |--random
+      |--CNN_split_X_best.pth
+   |--by-subject
+      |--CNN_split_X_best.pth
 ```
 
 ### Training
-To train the classifier on *./data/training_data/EEG_dataset.pth* and *./data/training_data/EEG_dataset_by_subject.pth*, run the following lines respectively.
+To train the classifier on `./data/training_data/EEG_dataset.pth` and `./data/training_data/EEG_dataset_by_subject.pth`, run the following lines respectively.
 ```
 python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT_NUMBER --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth --save_model 
 python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT_NUMBER --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth --save_model 
 ```
 
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at *./checkpoints* automatically and be named in the format as *CNN_split_X_best.pth*. For more information of options, check *./lib/options.py*.
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and be named in the format as `CNN_split_X_best.pth`. For more information of options, check `./lib/options.py`.
 
 ### Testing
 To test the classifier, run
@@ -67,14 +82,14 @@ To test the classifier, run
 python  eval.py --classifier CLASSIFIER_NAME --train_mode full --load_path PATH_TO_CHECKPOINTS --eeg_dataset PATH_TO_EEG_DATA --splits_path PATH_TO_SPLIT_FILE
 ```
 
-The script will load models trained on different folds from *PATH_TO_CHECKPOINTS* to evaluate on the test set. The test accuracy will be shown on the screen.
+The script will load models trained on different folds from `PATH_TO_CHECKPOINTS` to evaluate on the test set. The test accuracy will be shown on the screen.
 
 For example, if you want to use our pretrained CNN models for evaluation, you can run
 ```
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
 ```
-The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are trained on *./data/training_data/EEG_dataset.pth* and *./data/training_data/EEG_dataset_by_subject.pth* respectively. After the evalution of our pretrained models, you should get the following results which are reported in our paper.
+The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are trained on `./data/training_data/EEG_dataset.pth` and `./data/training_data/EEG_dataset_by_subject.pth` respectively. After the evalution of our pretrained models, you should get the following results which are reported in our paper.
 
 <table>
 <tr><th>EEG_dataset </th><th>EEG_dataset_by_subject</th></tr>
