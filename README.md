@@ -75,15 +75,10 @@ The models in *./checkpoints/CNN/random* and *./checkpoints/CNN/by-subject* are 
 </td><td>
   
 |  | LIN | MLP | GRU | CNN |
-|:----------------------:|:---:|:---:|:---:|:---:|
-| ACC                    |55.5%|53.5%|58.5%|66.3%|
-  
+|:-----------:|:---:|:---:|:---:|:---:|
+| ACC         |55.5%|53.5%|58.5%|66.3%|
+
 </td></tr> </table>
-  
-| type|name |description |
-|----|---|---|
-| *address* | _user | address of certificate owner |
-| *bytes32* | _hash | sha256 hash of the certificate text |
 
 
 ### Visualization
