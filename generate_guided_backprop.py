@@ -9,7 +9,7 @@ from lib.classifiers import classifier_CNN
 from lib.mapper import load_xyz, map_function
 from lib.options import Options
 
-def main(model_load_path, dataset_path, splits_path, fig_path, save_gif, save_path='./mid_results/grad-tmp'):
+def main(model_load_path, dataset_path, splits_path, fig_path, save_gif, save_path='./mid_results/grad'):
 
     dataset = torch.load(dataset_path)
     test_idx = torch.load(splits_path)['splits'][0]['test']
@@ -34,7 +34,6 @@ def main(model_load_path, dataset_path, splits_path, fig_path, save_gif, save_pa
     else:
         XY = None
 
-    save_path = './tmp/grad'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
