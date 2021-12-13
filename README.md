@@ -1,5 +1,7 @@
 # Probing EEG Signals with Neural-Network Classifiers
+<p align="center"><img src="figs/heat.png"></p>
 This is the repository for our ML Project 2 - Probing EEG Signals with Neural-Network Classifiers.
+
 ## Table of Contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
