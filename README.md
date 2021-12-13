@@ -11,6 +11,7 @@ This is the repository for our ML Project 2 - Probing EEG Signals with Neural-Ne
     - [Testing](#testing)
     - [Visualization](#visualization)
     - [Statistic Analysis](#statistic-analysis)
+- [Contact](#contact)
  
 ## Overview
 We consider investigating the effect of gender in word production by classifying Electroencephalography (EEG) brain signals. The EEG signals are analyzed using various models. To understand the disparity of brain activities between female and male, we propose a gradient-based method to indicate the brain regions and time periods exhibiting dominant differences in the picture naming task, which helps us reveal dynamic changes of brain in a more accurate and easier fashion.
@@ -163,3 +164,5 @@ We also provide the codes for the statistic analysis introduced in our paper.
   | Accuracy           |0.839(0.079)|0.837(0.067)| 0.819|  
   | Reaction Time (ms) |943.8(128.6)|962.7(127.0)| 0.503|  
 
+## Contact
+If you have any questions, please contact us by sending an email to ren.li@epfl.ch.
