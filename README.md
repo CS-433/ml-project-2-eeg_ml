@@ -77,22 +77,23 @@ To train the classifier on `./data/training_data/EEG_dataset.pth` and `./data/tr
 python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT_NUMBER --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth --save_model 
 python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT_NUMBER --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth --save_model 
 ```
+**CLASSIFIER_NAME** should be `LIN`, `MLP`, `GRU` or `CNN` and **SPLIT_NUMBER** should be from `0` to `4`, which is corresponding to different folds.
 
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and be named in the format as `CNN_split_X_best.pth`. For more information of options, check `./lib/options.py`.
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and named in the format as `CNN_split_X_best.pth`. For more information about options, check `./lib/options.py`.
 
 ### Testing
 To test the classifier, run
 ```
 python  eval.py --classifier CLASSIFIER_NAME --train_mode full --load_path PATH_TO_CHECKPOINTS --eeg_dataset PATH_TO_EEG_DATA --splits_path PATH_TO_SPLIT_FILE
 ```
-The script will load models trained on different folds from `PATH_TO_CHECKPOINTS` to evaluate on the test set. The test accuracy will be shown on the screen.
+The script will load models trained on different folds from **PATH_TO_CHECKPOINTS**  for the evaluation on test set. The test accuracy will be shown on the screen.
 
 For example, if you want to use our pretrained CNN models for evaluation, you can run
 ```
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
 ```
-The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are trained on `./data/training_data/EEG_dataset.pth` and `./data/training_data/EEG_dataset_by_subject.pth` respectively. After the evalution of our pretrained models, you should get the following results which are reported in our paper.
+The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are trained on `./data/training_data/EEG_dataset.pth` and `./data/training_data/EEG_dataset_by_subject.pth` respectively. After the evaluation of our pretrained models, you should get the following results as reported in our paper.
 
 <table>
 <tr><th>EEG_dataset </th><th>EEG_dataset_by_subject</th></tr>
@@ -127,34 +128,34 @@ the temporal amplitude changes of female's and male's signals. In the middle is 
 </p>
 
 ### Statistic Analysis
-We also provide the code for the statistic analysis introduced in our paper.
+We also provide the codes for the statistic analysis introduced in our paper.
 
-* For tANOVA analysis, run
+* For **tANOVA analysis**, run
 
   ```
   python statistic_analysis.py --analysis tANOVA --fig_path ./figs
   ```
-  You will have the following figure showing the p-value at each time point.
+  It will give you the following figure `./figs/tANOVA.png` showing the p-value at each time point.
   <p align="center">
   <img src="figs/tANOVA.png" height="200">
 </p>
 
-* For t-test analysis, run
+* For **t-test analysis**, run
 
   ```
   python statistic_analysis.py --analysis ttest --fig_path ./figs
   ```
-  You will have the following figure showing the p-value for each channel at every time point.
+  It will give you the following figure `./figs/t-test.png` showing the p-value for each channel at every time point.
   <p align="center">
   <img src="figs/t-test.png" height="250">
 </p>
 
-* For behavioral data analysis, run
+* For **behavioral data analysis**, run
 
   ```
   python statistic_analysis.py --analysis htest
   ```
-  You will have the results as shown in the following table.
+  You will have the following results, means(stds) and p-value of Kruskal-Wallis Test, as reported in Appendices Sec. F of our paper.
   | | Female | Male | Kruskal-Wallis Test |                     
   |:---:|:---:|:---:|:---:|
   | Accuracy           |0.839(0.079)|0.837(0.067)| 0.819|  
