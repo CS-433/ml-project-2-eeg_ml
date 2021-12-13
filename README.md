@@ -119,7 +119,7 @@ python generate_guided_backprop.py --load_path checkpoints/CNN/random --gif
 This will give you the following figure and gif. If you do not want to generate gif as it will take a lot of time, drop **--gif**. The left and right images in the gif are 
 the temporal amplitude changes of female's and male's signals. In the middle is our corresponding significance map.
 <p align="center">
-  <img src="figs/heat-sign.png">
+  <img src="figs/heat-sign.png" height="400">
 </p>
 
 <p align="center">
@@ -136,7 +136,7 @@ We also provide the code for the statistic analysis introduced in our paper.
   ```
   You will have the following figure showing the p-value at each time point.
   <p align="center">
-  <img src="figs/tANOVA.png">
+  <img src="figs/tANOVA.png" height="200">
 </p>
 
 * For t-test analysis, run
