@@ -16,7 +16,7 @@ class Options():
         self._parser.add_argument('--batch_size', type=int, default=128, help='input batch size')
         self._parser.add_argument('--optim', type=str, default='Adam', help='optimizer')
         self._parser.add_argument('--train_mode', type=str, default='full', help='training mode: full/window/channel')
-        self._parser.add_argument('--classifier', type=str, default='CNN', help="LSTM/MLP/CNN")
+        self._parser.add_argument('--classifier', type=str, default='CNN', help="GRU/MLP/CNN/LIN")
         self._parser.add_argument('--learning_rate', default=0.001, type=float, help='learning rate')
         self._parser.add_argument('--epochs', default=100, type=int, help='training epochs')
         self._parser.add_argument('--GPUindex', default=0, type=int, help='which GPU to use')

@@ -13,13 +13,13 @@ import numpy as np
 class classifier_LIN(nn.Module):
 
     def __init__(self, input_size, n_class):
-        super(classifier_LIN,self).__init__()
+        super(classifier_LIN, self).__init__()
         self.input_size = input_size
 
         self.lin1 = nn.Linear(input_size, n_class)
 
         self.num_parameters = self.count_parameters()
-        print(self.num_parameters)
+        #print(self.num_parameters)
 
     def count_parameters(self, ):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -31,29 +31,25 @@ class classifier_LIN(nn.Module):
         return x
 
 ##############################################################
-# LSTM classifier
+# GRU classifier
 ##############################################################
-class classifier_LSTM(nn.Module):
+class classifier_GRU(nn.Module):
 
-    def __init__(self, input_size, lstm_layers, lstm_size, output_size):
-        super(classifier_LSTM,self).__init__()
+    def __init__(self, input_size, gru_size, output_size):
+        super(classifier_GRU, self).__init__()
         self.input_size = input_size
-        self.lstm_layers = lstm_layers
-        self.lstm_size = lstm_size
+        self.gru_size = gru_size
         self.output_size = output_size
         self.dropout_p = 0.5
-        #self.lstm = nn.LSTM(input_size, lstm_size, num_layers=1, batch_first=True)
-        self.lstm = nn.GRU(input_size, lstm_size, num_layers=1, batch_first=True)
-        #self.lstm = nn.RNN(input_size, lstm_size, num_layers=1, batch_first=True, nonlinearity ='relu')
-        self.lin1 = nn.Linear(lstm_size*10, 128)
+        self.gru = nn.GRU(input_size, gru_size, num_layers=1, batch_first=True)
+        self.lin1 = nn.Linear(gru_size*10, 128)
         self.lin2 = nn.Linear(128, output_size)
         self.dropout = nn.Dropout(p=self.dropout_p)
 
         self.act = nn.ReLU()
 
         self.num_parameters = self.count_parameters()
-        print(self.num_parameters)
-        #sys.exit()
+        #print(self.num_parameters)
 
     def count_parameters(self, ):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -61,8 +57,7 @@ class classifier_LSTM(nn.Module):
     def forward(self, x):
         # x - (B, L, D)
         batch_size = x.size(0)
-        #x = self.lstm(x)[0][:,-1,:]
-        x = self.lstm(x)[0][:,::30,:]
+        x = self.gru(x)[0][:,::30,:]
         x = self.dropout(x)
         x = x.reshape(batch_size, -1)
         x = self.lin1(x)
@@ -78,18 +73,18 @@ class classifier_LSTM(nn.Module):
 class classifier_MLP(nn.Module):
 
     def __init__(self, input_size, n_class):
-        super(classifier_MLP,self).__init__()
+        super(classifier_MLP, self).__init__()
         self.input_size = input_size
         self.dropout_p = 0.5
 
         self.act = nn.ReLU()
         self.lin1 = nn.Linear(input_size, 128)
-        #self.lin2 = nn.Linear(128, 128)
+        self.lin2 = nn.Linear(128, 128)
         self.lin3 = nn.Linear(128, n_class)
         self.dropout = nn.Dropout(p=self.dropout_p)
 
         self.num_parameters = self.count_parameters()
-        print(self.num_parameters)
+        #print(self.num_parameters)
 
     def count_parameters(self, ):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -100,9 +95,9 @@ class classifier_MLP(nn.Module):
         x = self.lin1(x)
         x = self.act(x)
         x = self.dropout(x)
-        #x = self.lin2(x)
-        #x = self.act(x)
-        #x = self.dropout(x)
+        x = self.lin2(x)
+        x = self.act(x)
+        x = self.dropout(x)
         x = self.lin3(x)
 
         return x
@@ -117,17 +112,15 @@ class CNN_feature(nn.Module):
         self.channel = in_channel
         self.num_points = num_points
 
-        #num_points = 80
-
-        self.conv1_size = 16#32
+        self.conv1_size = 16
         self.conv1_stride = 1
         self.conv1_out_channels = 8
         self.conv1_out = int(math.floor(((num_points-self.conv1_size)/self.conv1_stride+1)))
         self.fc1_in = self.channel*self.conv1_out_channels
         self.fc1_out = 40 
 
-        self.pool1_size = 8#8#16#128
-        self.pool1_stride = 4#4#8#64
+        self.pool1_size = 8
+        self.pool1_stride = 4
         self.pool1_out = int(math.floor(((self.conv1_out-self.pool1_size)/self.pool1_stride+1)))
 
         self.dropout_p = 0.5
@@ -139,8 +132,6 @@ class CNN_feature(nn.Module):
         self.dropout = nn.Dropout(p=self.dropout_p)
 
         self.fc2_in = self.pool1_out*self.fc1_out
-
-        #print(self.conv1_out, self.pool1_out)
 
     def forward(self, x):
 	    #x - (B, L, D)
@@ -179,7 +170,6 @@ class classifier_CNN(nn.Module):
         
         self.num_parameters = self.count_parameters()
         #print(self.num_parameters)
-        #sys.exit()
 
     def count_parameters(self, ):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
@@ -189,65 +179,6 @@ class classifier_CNN(nn.Module):
         x = self.features(x)
         x = self.classifier(x)
         return x
-
-'''
-class classifier_CNN(nn.Module):
-
-    def __init__(self, in_channel, num_points, n_class):
-        super(classifier_CNN, self).__init__()
-        self.channel = in_channel
-        self.num_points = num_points
-
-        self.conv1_size = 32
-        self.conv1_stride = 1
-        self.conv1_out_channels = 8
-        self.conv1_out = int(math.floor(((num_points-self.conv1_size)/self.conv1_stride+1)))
-        self.fc1_in = self.channel*self.conv1_out_channels
-        self.fc1_out = 40 
-
-        self.pool1_size = 128
-        self.pool1_stride = 64
-        self.pool1_out = int(math.floor(((self.conv1_out-self.pool1_size)/self.pool1_stride+1)))
-
-        self.dropout_p = 0.5
-        self.fc2_in = self.pool1_out*self.fc1_out
-        
-        self.conv1 = nn.Conv1d(in_channels=1, out_channels=self.conv1_out_channels, kernel_size=self.conv1_size, stride=self.conv1_stride)
-        self.fc1 = nn.Linear(self.fc1_in, self.fc1_out)
-        self.pool1 = nn.AvgPool1d(kernel_size=self.pool1_size, stride=self.pool1_stride)
-        self.activation = nn.ReLU()
-        self.dropout = nn.Dropout(p=self.dropout_p)
-        self.fc2 = nn.Linear(self.fc2_in, n_class)
-
-    def forward(self, x):
-	    #x - (B, L, D)
-        batch_size = x.shape[0]
-        len_eeg = x.shape[1]
-        #num_channel = x.shape[2]
-
-        x = x.permute(0,2,1)
-        x = x.reshape(-1, len_eeg)
-        x = x.unsqueeze(1) # (B*D, 1, L)
-
-	    #print x.shape
-        x = self.conv1(x) # (B*D, 8, L)
-        x = self.activation(x)
-
-        x = x.reshape(batch_size, self.channel, self.conv1_out_channels, self.conv1_out)
-        x = x.permute(0,3,1,2)
-        x = x.reshape(batch_size, self.conv1_out, self.channel*self.conv1_out_channels)
-        x = self.dropout(x)
-
-        x = self.fc1(x) # (B, L', 40)
-        x = self.activation(x) 
-        #x = self.dropout(x)   
-        x = x.permute(0,2,1) # (B, 40, L')
-        x = self.pool1(x) 
-
-        x = x.reshape(batch_size, -1) 
-        x = self.fc2(x)
-        return x
-'''
 
 ##############################################################
 # Network trainer
