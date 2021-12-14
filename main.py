@@ -14,12 +14,10 @@ import torch
 random.seed(42)
 np.random.seed(42)
 torch.manual_seed(42)
-#torch.set_deterministic(True)
-#torch.use_deterministic_algorithms(True)
 
 from torch.utils.data import DataLoader
 from lib.Loader import EEGDataset, Splitter
-from lib.classifiers import classifier_LSTM, classifier_MLP, classifier_CNN, net_trainer
+from lib.classifiers import classifier_GRU, classifier_MLP, classifier_CNN, classifier_LIN, net_trainer
 
 opt, opt_mode = Options().parse()
 
@@ -33,12 +31,14 @@ eeg_length = opt_mode['eeg_length']
 
 dataset = EEGDataset(opt.eeg_dataset, use_window=(opt.train_mode == 'window'), window_len=eeg_length, window_s=opt.window_s)
 
-# Create loaders for LSTM/MLP/CNN
+# Create loaders for GRU/MLP/CNN/LIN
 loaders = {split: DataLoader(Splitter(dataset, split_path=opt.splits_path, split_num=split_num, split_name=split), batch_size=opt.batch_size, drop_last=False, shuffle=True) for split in ["train", "val", "test"]}
 
 
-if opt.classifier == 'LSTM':
-	net = classifier_LSTM(input_size=channel_num, lstm_layers=1, lstm_size=128, output_size=class_num)
+if opt.classifier == 'GRU':
+	net = classifier_GRU(input_size=channel_num, gru_size=128, output_size=class_num)
+elif opt.classifier == 'LIN':
+	net = classifier_LIN(input_size=channel_num*eeg_length, n_class=1)
 elif opt.classifier == 'MLP':
 	net = classifier_MLP(input_size=channel_num*eeg_length, n_class=class_num)
 elif opt.classifier == 'CNN':
