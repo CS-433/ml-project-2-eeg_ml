@@ -19,7 +19,7 @@ We consider investigating the effect of gender in word production by classifying
 You can find the codes here for gender classification on EEG data and for significance visualization of signal dissimilarities. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a recurrent model (GRU) and a convolutional model (CNN).
 
 ## Prerequisites
-- Python 3
+- Python 3.7
 - panda
 - openpyxl
 - numpy
@@ -30,7 +30,10 @@ You can find the codes here for gender classification on EEG data and for signif
 - imageio
 - opencv
 
-Other versions may also work.
+Other versions may also work. To install, you can run
+```
+pip install panda openpyxl numpy collection matplotlib scipy torch imageio opencv-python
+```
 
 ## Getting Started
 ### Data
