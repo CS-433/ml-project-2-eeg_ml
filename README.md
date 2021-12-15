@@ -122,7 +122,7 @@ The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are 
   
 | Model | LIN | MLP | GRU | CNN |
 |:-----------:|:---:|:---:|:---:|:---:|
-| ACC         |55.5%|53.5%|58.5%|66.3%|
+| ACC         |55.5%|53.5%|62.4%|66.3%|
 
 </td></tr> </table>
 
