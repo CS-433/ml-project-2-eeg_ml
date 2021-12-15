@@ -94,8 +94,17 @@ python  eval.py --classifier CLASSIFIER_NAME --train_mode full --load_path PATH_
 ```
 The script will load models trained on different folds from **PATH_TO_CHECKPOINTS**  for the evaluation on test set. The test accuracy will be shown on the screen.
 
-For example, if you want to use our pretrained CNN models for evaluation, you can run
+For example, if you want to use our pretrained LIN/MLP/GRU/CNN models for evaluation, you can run
 ```
+python  eval.py --classifier LIN --train_mode full --load_path ./checkpoints/LIN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier LIN --train_mode full --load_path ./checkpoints/LIN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+
+python  eval.py --classifier MLP --train_mode full --load_path ./checkpoints/MLP/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier MLP --train_mode full --load_path ./checkpoints/MLP/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+
+python  eval.py --classifier GRU --train_mode full --load_path ./checkpoints/GRU/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier GRU --train_mode full --load_path ./checkpoints/GRU/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
 ```
@@ -107,7 +116,7 @@ The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are 
   
 | Model | LIN | MLP | GRU | CNN |                     
 |:-----------:|:---:|:---:|:---:|:---:|
-| ACC         |76.0%|80.1%|85.5%|90.0%|  
+| ACC         |76.0%|80.1%|85.4%|90.0%|  
 
 </td><td>
   
