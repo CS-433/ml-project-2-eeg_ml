@@ -46,6 +46,7 @@ The difference between `EEG_dataset.pth` and `EEG_dataset_by_subject.pth` is the
 After downloading, you should have necessary data files organized in the following way:
 ```
 ./data
+|--behavioral_info.xlsx
 |--Biosemi128OK.xyz 
 |--xyz.npy
 |--training_data
