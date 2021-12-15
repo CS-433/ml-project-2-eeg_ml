@@ -20,7 +20,7 @@ You can find the codes here for gender classification on EEG data and for signif
 
 ## Prerequisites
 - Python 3.7
-- panda
+- pandas
 - openpyxl
 - numpy
 - collection
@@ -32,7 +32,7 @@ You can find the codes here for gender classification on EEG data and for signif
 
 Other versions may also work. To install, you can run
 ```
-pip install panda openpyxl numpy collection matplotlib scipy torch imageio opencv-python
+pip install pandas openpyxl numpy collection matplotlib scipy torch imageio opencv-python
 ```
 
 ## Getting Started
