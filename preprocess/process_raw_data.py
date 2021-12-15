@@ -11,7 +11,7 @@ def load_xlsx(path):
     dfs = {sheet_name: xl_file.parse(sheet_name) 
           for sheet_name in xl_file.sheet_names} # Feuil1/Feuil2/Feuil3
     variables = dfs['Feuil1']
-    subject, group, sex, age, voc, digit_span, acc_deno = variables.loc[:,'SUBJECT'], variables.loc[:,'GROUP'], variables.loc[:,'SEX'], variables.loc[:,'AGE'], variables.loc[:,'VOC NB'], variables.loc[:,'MDC OD'], variables.loc[:,'Acc_DENO'] 
+    subject, group, sex, age, voc, digit_span, acc_deno, rt_deno = variables.loc[:,'SUBJECT'], variables.loc[:,'GROUP'], variables.loc[:,'SEX'], variables.loc[:,'AGE'], variables.loc[:,'VOC NB'], variables.loc[:,'MDC OD'], variables.loc[:,'Acc_DENO'], variables.loc[:,'RT_DENO']
 
     subject = subject.values.tolist()
     group = group.values.tolist()
@@ -19,7 +19,9 @@ def load_xlsx(path):
     age = age.values.tolist()
     voc = voc.values.tolist()
     digit_span = digit_span.values.tolist()
-    return subject, group, sex, age, voc, digit_span, acc_deno
+    acc_deno = acc_deno.values.tolist()
+    rt_deno = rt_deno.values.tolist()
+    return subject, group, sex, age, voc, digit_span, acc_deno, rt_deno
 
 def frequency(data):
     dic = {}
