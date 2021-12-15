@@ -85,7 +85,7 @@ python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT
 ```
 **CLASSIFIER_NAME** should be `LIN`, `MLP`, `GRU` or `CNN` and **SPLIT_NUMBER** should be from `0` to `4`, which is corresponding to different folds.
 
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and named in the format as `CNN_split_X_best.pth`. For more information about options, check `./lib/options.py`.
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and named in the format as `CNN_split_X_best.pth`. For more information about options, check `./lib/options.py`. If you don't have GPU, add **--no_cuda**.
 
 ### Testing
 To test the classifier, run
