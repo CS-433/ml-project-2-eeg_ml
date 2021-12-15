@@ -19,8 +19,8 @@ We consider investigating the effect of gender in word production by classifying
 You can find the codes here for gender classification on EEG data and for significance visualization of signal dissimilarities. We implement 4 models, including a linear model (LIN), a multilayer perceptron (MLP), a recurrent model (GRU) and a convolutional model (CNN).
 
 ## Prerequisites
-- Python 3
-- panda
+- Python 3.7
+- pandas
 - openpyxl
 - numpy
 - collection
@@ -30,7 +30,10 @@ You can find the codes here for gender classification on EEG data and for signif
 - imageio
 - opencv
 
-Other versions may also work.
+Other versions may also work. To install, you can run
+```
+pip install pandas openpyxl numpy collection matplotlib scipy torch imageio opencv-python
+```
 
 ## Getting Started
 ### Data
@@ -82,7 +85,7 @@ python  main.py --classifier CLASSIFIER_NAME --train_mode full --split_num SPLIT
 ```
 **CLASSIFIER_NAME** should be `LIN`, `MLP`, `GRU` or `CNN` and **SPLIT_NUMBER** should be from `0` to `4`, which is corresponding to different folds.
 
-The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and named in the format as `CNN_split_X_best.pth`. For more information about options, check `./lib/options.py`.
+The default optimizer is Adam optimizer, the learning rate is 0.001, the batch size is 128, and the number of epoch is 100 (but you can change them by setting command-line arguments). If you do not want to save the trained model, drop **--save_model** (the test accuracy will be printed on the screen anyway). Otherwise, the trained model will be saved at `./checkpoints` automatically and named in the format as `CNN_split_X_best.pth`. For more information about options, check `./lib/options.py`. If you don't have GPU, add **--no_cuda**.
 
 ### Testing
 To test the classifier, run
@@ -91,8 +94,17 @@ python  eval.py --classifier CLASSIFIER_NAME --train_mode full --load_path PATH_
 ```
 The script will load models trained on different folds from **PATH_TO_CHECKPOINTS**  for the evaluation on test set. The test accuracy will be shown on the screen.
 
-For example, if you want to use our pretrained CNN models for evaluation, you can run
+For example, if you want to use our pretrained LIN/MLP/GRU/CNN models for evaluation, you can run
 ```
+python  eval.py --classifier LIN --train_mode full --load_path ./checkpoints/LIN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier LIN --train_mode full --load_path ./checkpoints/LIN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+
+python  eval.py --classifier MLP --train_mode full --load_path ./checkpoints/MLP/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier MLP --train_mode full --load_path ./checkpoints/MLP/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+
+python  eval.py --classifier GRU --train_mode full --load_path ./checkpoints/GRU/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
+python  eval.py --classifier GRU --train_mode full --load_path ./checkpoints/GRU/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
+
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
 ```
@@ -104,13 +116,13 @@ The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are 
   
 | Model | LIN | MLP | GRU | CNN |                     
 |:-----------:|:---:|:---:|:---:|:---:|
-| ACC         |76.0%|80.1%|85.5%|90.0%|  
+| ACC         |76.0%|80.1%|85.4%|90.0%|  
 
 </td><td>
   
 | Model | LIN | MLP | GRU | CNN |
 |:-----------:|:---:|:---:|:---:|:---:|
-| ACC         |55.5%|53.5%|58.5%|66.3%|
+| ACC         |55.5%|53.5%|62.4%|66.3%|
 
 </td></tr> </table>
 
