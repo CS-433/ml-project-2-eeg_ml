@@ -90,7 +90,6 @@ def run_backprop(net, model_load_path, EEGs, labels, means, stddevs, save_path, 
     # Run pre-trained CNN on test trail and obtain gradient by Guided Backprop.
     # Gradient are saved at ./mid_results/grad.
     
-    #save_path = 'mid_results/grad'
     save_path_female = os.path.join(save_path, 'female')
     save_path_male = os.path.join(save_path, 'male')
     if not os.path.exists(save_path_female):
@@ -153,7 +152,7 @@ def run_backprop(net, model_load_path, EEGs, labels, means, stddevs, save_path, 
     # Plot spatio-tempolal heat map
     plot_heat_map(grad_sign_clip, fig_path)
     print('Guided Backpropogation is finished! Find the fig at ' + os.path.join(fig_path, 'heat-sign.png'))
-
+    
     # Plot gif
     if plot_gif:
         print('Start generating GIF...')
@@ -215,8 +214,8 @@ def generate_gif(EEGs, labels, grad_sign_clip, XY, fig_path, fps=60):
         eeg_dat_m = EEGs_m_sample[:,t]
 
         plot_topographic(X_dat, Y_dat, Z_dat, xi, yi, circle, 'magma', grad_min, grad_max, save_image_path, 'heat_'+str(t)+'.png')
-        plot_topographic(X_dat, Y_dat, eeg_dat_f, xi, yi, circle, 'coolwarm', f_min, f_max, save_image_path, 'heat_'+str(t)+'.png')
-        plot_topographic(X_dat, Y_dat, eeg_dat_m, xi, yi, circle, 'coolwarm', m_min, m_max, save_image_path, 'heat_'+str(t)+'.png')
+        plot_topographic(X_dat, Y_dat, eeg_dat_f, xi, yi, circle, 'coolwarm', f_min, f_max, save_image_path, 'eeg_f_'+str(t)+'.png')
+        plot_topographic(X_dat, Y_dat, eeg_dat_m, xi, yi, circle, 'coolwarm', m_min, m_max, save_image_path, 'eeg_m_'+str(t)+'.png')
 
     # Load image sequence for gif generation
     images = []
@@ -232,6 +231,7 @@ def generate_gif(EEGs, labels, grad_sign_clip, XY, fig_path, fps=60):
     imageio.mimsave(os.path.join(fig_path, 'topographic.gif'), images, fps=fps)
 
 def plot_topographic(X_dat, Y_dat, Z_dat, xi, yi, circle, color_code, vmin, vmax, save_path, image_name):
+    plt.rcParams["figure.figsize"] = 5,5
     zi = griddata((X_dat, Y_dat), Z_dat, (xi[None,:], yi[:,None]), method='cubic')
     zi[circle>1] = float("NAN")
 
