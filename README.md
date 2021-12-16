@@ -20,17 +20,17 @@ You can find the codes here for gender classification on EEG data and for signif
 
 ## Prerequisites
 - Python 3.7
-- pandas
-- openpyxl
-- numpy
+- pandas 1.3.5
+- openpyxl 3.0.9
+- numpy 1.21.4
 - collection
-- matplotlib 2.1.1
-- scipy 1.7.1
-- PyTorch 1.7.1 
-- imageio
-- opencv
+- matplotlib 3.5.1
+- scipy 1.7.3
+- PyTorch 1.10.0+cu102 
+- imageio 2.13.3
+- opencv 4.5.4
 
-Other versions may also work. To install, you can run
+Usually, other versions also work. To install, you can run
 ```
 pip install pandas openpyxl numpy collection matplotlib scipy torch imageio opencv-python
 ```
