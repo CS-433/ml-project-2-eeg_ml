@@ -109,7 +109,7 @@ python  eval.py --classifier GRU --train_mode full --load_path ./checkpoints/GRU
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/random --eeg_dataset ./data/training_data/EEG_dataset.pth --splits_path ./data/training_data/splits.pth
 python  eval.py --classifier CNN --train_mode full --load_path ./checkpoints/CNN/by-subject --eeg_dataset ./data/training_data/EEG_dataset_by_subject.pth --splits_path ./data/training_data/splits_by_subject.pth
 ```
-The models in `./checkpoints/CNN/random` and `./checkpoints/CNN/by-subject` are trained on `./data/training_data/EEG_dataset.pth` and `./data/training_data/EEG_dataset_by_subject.pth` respectively. After the evaluation of our pretrained models, you should get the following results as reported in our paper.
+The models in `./checkpoints/XXX/random` and `./checkpoints/XXX/by-subject` are trained on `./data/training_data/EEG_dataset.pth` and `./data/training_data/EEG_dataset_by_subject.pth` respectively. After the evaluation of our pretrained models, you should get the following results as reported in our paper.
 
 <table>
 <tr><th>EEG_dataset </th><th>EEG_dataset_by_subject</th></tr>
