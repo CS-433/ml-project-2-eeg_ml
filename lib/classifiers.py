@@ -134,7 +134,7 @@ class CNN_feature(nn.Module):
         self.fc2_in = self.pool1_out*self.fc1_out
 
     def forward(self, x):
-	    #x - (B, L, D)
+        #x - (B, L, D)
         batch_size = x.shape[0]
         len_eeg = x.shape[1]
 
@@ -175,7 +175,7 @@ class classifier_CNN(nn.Module):
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
     def forward(self, x):
-	    #x - (B, L, D)
+        #x - (B, L, D)
         x = self.features(x)
         x = self.classifier(x)
         return x
