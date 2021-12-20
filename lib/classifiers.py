@@ -8,7 +8,7 @@ import torch.optim
 import numpy as np
 
 ##############################################################
-# MLP classifier (2FC)
+# LIN classifier
 ##############################################################
 class classifier_LIN(nn.Module):
 
@@ -68,7 +68,7 @@ class classifier_GRU(nn.Module):
 
 
 ##############################################################
-# MLP classifier (2FC)
+# MLP classifier (3FC)
 ##############################################################
 class classifier_MLP(nn.Module):
 
